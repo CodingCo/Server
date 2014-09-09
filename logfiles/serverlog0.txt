@@ -1,0 +1,8 @@
+sep. 08, 2014 3:13:26 PM utility.Utility logInfo
+INFO: server closed
+sep. 08, 2014 3:13:26 PM utility.Utility logInfo
+INFO: server closed
+sep. 08, 2014 3:13:39 PM utility.Utility logInfo
+INFO: server closed
+sep. 08, 2014 3:14:07 PM utility.Utility logInfo
+INFO: server closed
