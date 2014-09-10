@@ -12,13 +12,14 @@ import java.net.Socket;
 public class ChatServer implements Runnable {
 
     private ServerSocket serverSocket;
+    private final MessageHandler mh;
+
     private boolean running;
-    private Thread thread;
+    private final String ipAddress;
+    private final int port;
 
-    private String ipAddress;
-    private int port;
-
-    public ChatServer() {
+    public ChatServer(MessageHandler mh) {
+        this.mh = mh;
         this.ipAddress = "127.0.0.1";
         this.port = 8014;
         running = true;
@@ -26,49 +27,46 @@ public class ChatServer implements Runnable {
 
     @Override
     public void run() {
+        try {
+            openConnection();
 
-        openConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         while (running) {
-
             Socket socket;
             try {
                 System.out.println("waiting for connection");
                 socket = serverSocket.accept();
-                Thread clientThread = new Thread(new ClientHandler(socket));
-                clientThread.start();
+                ClientHandler h = new ClientHandler(socket, mh);
+                Thread handlerThread = new Thread(h);
+                handlerThread.start();
             } catch (Exception e) {
-
+                e.printStackTrace();
             }
-
         }
         System.out.println("server closed");
     }
 
-    public void openConnection() {
-        try {
-            this.serverSocket = new ServerSocket();
-            this.serverSocket.bind(new InetSocketAddress(ipAddress, port));
-            System.out.println("Connection opened on: " + ipAddress + " port: " + port);
-        } catch (IOException ex) {
-            System.out.println("could not open server");
-            ex.printStackTrace();
-        }
+    public void openConnection() throws IOException {
+        this.serverSocket = new ServerSocket();
+        this.serverSocket.bind(new InetSocketAddress(ipAddress, port));
+        System.out.println("Connection opened on: " + ipAddress + " port: " + port);
+
     }
 
     public void startServer() {
-        this.thread = new Thread(this);
+        Thread server = new Thread(this);
+        Thread message = new Thread(mh);
+        message.start();
+        server.start();
         this.running = true;
-        thread.start();
     }
 
-    public void stopServer() {
-// send close til alle clienter
-        try {
-            this.running = false;
-            this.serverSocket.close();
-        } catch (IOException ex) {
-            System.out.println("closed");
-        }
+    public void stopServer() throws IOException {
+        this.running = false;
+        this.serverSocket.close();
+        System.out.println("closed");
     }
 
 }
