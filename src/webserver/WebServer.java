@@ -39,42 +39,24 @@ public class WebServer {
 
     static class PageHandler implements HttpHandler {
 
+        String contentType = "";
         String contentFolder = "public/";
 
         @Override
 
         public void handle(HttpExchange he) throws IOException {
-            String contentType = "";
-            String fileName = he.getRequestURI().toString().substring(1);
+
+            String fileName = he.getRequestURI().getPath().substring(1);
             File file;
             
-            switch(contentType){
-                case "html":
-                    contentType = "text/html";
-                    break;
-                case "css":
-                    contentType = "text/css";
-                    break;
-                case "pdf":
-                    contentType = "application/pdf";
-                    break;
-                case "jar":
-                    contentType = "applikation/zip";
-                    break;
-                case "png":
-                case "jpeg":
-                case "jpg":
-                case "gif":
-                    contentType = "image/"+contentType;
-                    break;
-            }
-            
-            if (fileName.isEmpty()) {
-                file = new File(contentFolder + "index.html");
+            if (fileName.isEmpty() || fileName.equals("/")) {
+                file = new File(contentFolder + "index2.html");
             } else {
+                contentType = getContentType(fileName);
+                System.out.println(contentType);
                 file = new File(contentFolder + fileName);
             }
-            
+
             byte[] bytesToSend = new byte[(int) file.length()];
             try {
                 BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
@@ -91,4 +73,28 @@ public class WebServer {
             }
         }
     }
+    
+    private static String getContentType(String s) {
+
+        String contentType = s.substring(s.lastIndexOf(".")+1);
+        System.out.println(contentType);
+
+        switch (contentType) {
+            case "html":
+                return "text/html";
+            case "css":
+                return "text/css";
+            case "pdf":
+                return "application/pdf";
+            case "jar":
+                return "applikation/zip";
+            case "png":
+            case "jpeg":
+            case "jpg":
+            case "gif":
+                return "image/" + contentType;       
+        }
+        return contentType;
+    }
+
 }
