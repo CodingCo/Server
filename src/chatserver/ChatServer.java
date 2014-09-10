@@ -20,6 +20,12 @@ public class ChatServer implements Runnable {
     private String ipAddress;
     private int port;
 
+    public ChatServer() {
+        this.ipAddress = "127.0.0.1";
+        this.port = 8014;
+        running = true;
+    }
+
     @Override
     public void run() {
 
@@ -28,15 +34,12 @@ public class ChatServer implements Runnable {
 
             Socket socket;
             try {
-
+                System.out.println("waiting for connection");
                 socket = serverSocket.accept();
-                Thread clientThread = new Thread();
-
+                Thread clientThread = new Thread(new ClientHandler(socket));
+                clientThread.start();
             } catch (Exception e) {
-                if (!running) {
-                    stopServer();
-                    return;
-                }
+
             }
 
         }
@@ -55,23 +58,19 @@ public class ChatServer implements Runnable {
     }
 
     public void startServer() {
-        if (!thread.isAlive()) {
-            this.thread = new Thread(this);
-            thread.start();
-        } else {
-            System.out.println("server already running");
-        }
+        this.thread = new Thread(this);
+        this.running = true;
+        thread.start();
     }
 
     public void stopServer() {
+// send close til alle clienter
         try {
             this.running = false;
             this.serverSocket.close();
         } catch (IOException ex) {
-            System.out.println("Error in closing server");
-            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("closed");
         }
-        System.out.println("server closed");
     }
 
 }

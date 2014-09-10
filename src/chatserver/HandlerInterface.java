@@ -1,15 +1,10 @@
 package chatserver;
 
-import java.io.PrintWriter;
-
 /**
  *
- * @author Robert & Simon 
+ * @author Robert & Simon
  */
 public interface HandlerInterface {
 
-    public boolean sendMessage(PrintWriter writer, String Message);
-
-    public boolean recieveMessage(String message);
-
+    public void sendMessage(String Message);
 }

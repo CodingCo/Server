@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -14,74 +12,80 @@ import java.util.logging.Logger;
  */
 public class ClientHandler implements HandlerInterface, Runnable {
 
-    private Socket client;
+    private final Socket client;
     private BufferedReader input;
     private PrintWriter output;
+    private String userName;
+    private boolean running;
 
     public ClientHandler(Socket client) {
         this.client = client;
     }
 
-    public void openStreams(Socket client) {
-        try {
-            this.input = new BufferedReader(new InputStreamReader(client.getInputStream()));
-            this.output = new PrintWriter(client.getOutputStream());
-        } catch (IOException ex) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    public void openStreams(Socket client) throws IOException {
+        this.input = new BufferedReader(new InputStreamReader(client.getInputStream()));
+        this.output = new PrintWriter(client.getOutputStream());
+        System.out.println("Client is being handled ");
     }
 
-    // CONNECT
-    // SEND 
-    //CLOSE
     @Override
     public void run() {
         try {
+            openStreams(client);
 
-            String message = input.readLine();
-            connect(message);
-
-            while (true) {
-
+            while (this.running) {
+                String message = input.readLine();
+                System.out.println(message);
             }
+
         } catch (IOException ex) {
-
-        }
-    }
-
-    public void connect(String protocol) {
-        boolean connected = false;
-        if (protocol.contains("CONNECT#")) {
-            String name = protocol.replace("CONNECT#", "");
-            // static connect
-            connected = true;
-        }
-        if (connected) {
-            // send message to all about connected
-        }
-
-    }
-
-    public void closeConnection() {
-        try {
-            this.input.close();
-            this.output.close();
-            this.client.close();
-        } catch (IOException ex) {
-            System.out.println("error in gracefull shutdown");
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, null, ex);
             ex.printStackTrace();
         }
     }
 
-    @Override
-    public boolean sendMessage(PrintWriter writer, String Message) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    private void Connect(String protocol) {
+        if (protocol.startsWith("CONNECT#")) {
+            String name = protocol.replace("CONNECT#", "");
+            Dispatcher.registrerUser(name, this);
+            Dispatcher.sendMessage(null);
+        }
+
+    }
+
+    public void decodeProtocol(String protocol) {
+
+        if (protocol.startsWith("CONNECT#")) {
+            String name = protocol.replace("CONNECT#", "");
+            Dispatcher.registrerUser(name, this);
+            Dispatcher.sendMessage(null);
+
+        } else if (protocol.startsWith("SEND#")) {
+            String[] tokens = protocol.split("#");
+            Dispatcher.sendMessage(new Message(tokens[1], tokens[2], this.userName));
+
+        } else if (protocol.startsWith("CLOSE#")) {
+            try {
+                Dispatcher.sendMessage(null);
+                Dispatcher.deleteUser(userName);
+                this.closeConnection();
+                this.running = false;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    public void closeConnection() throws IOException {
+        this.input.close();
+        this.output.close();
+        this.client.close();
+        System.out.println("Gracefull shutdown");
     }
 
     @Override
-    public boolean recieveMessage(String message) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void sendMessage(String Message) {
+        this.output.println(Message);
     }
 
 }

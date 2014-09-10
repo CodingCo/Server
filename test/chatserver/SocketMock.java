@@ -28,6 +28,8 @@ public class SocketMock extends Socket {
      * @param failValue 0 = methods return legit values 1 = methods return null
      * values - only streams everyting else throws exceptions
      */
+    
+    
     public void setfailValue(int value) {
         this.failValue = value;
     }
@@ -48,6 +50,7 @@ public class SocketMock extends Socket {
     public OutputStream getOutputStream() throws IOException {
         switch (failValue) {
             case 0:
+                
                 return new OutputStream() {
                     @Override
                     public void write(int b) throws IOException {
