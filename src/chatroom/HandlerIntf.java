@@ -1,6 +1,7 @@
 package chatroom;
 
 import chatserver.ClientHandler;
+import chatserver.Message;
 
 /**
  *
@@ -10,9 +11,11 @@ public interface HandlerIntf {
 
     public void notifyClients(String message);
 
-    public void registrerClients(String name, ClientHandler handler);
+    public void notifyReciever(String message, ClientHandler handler);
 
-    public void unregistrerClients(String name);
+    public boolean registrerClients(String name, ClientHandler handler);
 
-    public void addToMessagePool(String message) throws InterruptedException;
+    public boolean unregistrerClients(String name);
+
+    public void addToMessagePool(Message message) throws InterruptedException;
 }

@@ -16,38 +16,35 @@ public class ClientHandler implements Runnable {
     private Socket client;
     private BufferedReader input;
     private PrintWriter output;
-    private HandlerIntf msgh;
+    private HandlerIntf messageHandler;
 
     private boolean running = true;
 
     public ClientHandler(Socket client, HandlerIntf msgHandler) {
         this.client = client;
-        this.msgh = msgHandler;
+        this.messageHandler = msgHandler;
     }
 
     public void openStreams(Socket client) throws IOException {
         this.input = new BufferedReader(new InputStreamReader(client.getInputStream()));
-        this.output = new PrintWriter(client.getOutputStream(),true);
+        this.output = new PrintWriter(client.getOutputStream(), true);
     }
 
     @Override
     public void run() {
         try {
-
             openStreams(client);
-            
-            String message = input.readLine();
-            msgh.registrerClients(message, this);
+            String message;
             while (running) {
                 message = input.readLine();
-                msgh.addToMessagePool(message);
+                messageHandler.addToMessagePool(new Message(this, message));
             }
         } catch (IOException | InterruptedException ex) {
             ex.printStackTrace();
         }
     }
 
-    public void sendMessage(String Message) {
+    public synchronized void sendMessage(String Message) {
         this.output.println(Message);
     }
 
