@@ -48,7 +48,7 @@ public class ChatServer implements Runnable {
                 Thread handlerThread = new Thread(h);
                 handlerThread.start();
             } catch (IOException e) {
-                Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, e);
+                Logger.getLogger(ChatServer.class.getName()).log(Level.INFO,"disconnected and input");
             }
         }
         System.out.println("server closed");

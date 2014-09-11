@@ -36,7 +36,7 @@ public class ServerExecutor {
             } while (!(command = r.readLine()).contains("killall"));
             r.close();
         } catch (IOException e) {
-            e.printStackTrace();
+
         }
         System.exit(0);
         System.out.println("server shutdown");
