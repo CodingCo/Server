@@ -1,4 +1,10 @@
-sep. 11, 2014 9:51:15 PM chatserver.ClientHandler closeConnection
+sep. 11, 2014 9:57:45 PM chatserver.ChatServer run
 SEVERE: null
-sep. 11, 2014 9:51:22 PM chatserver.ClientHandler closeConnection
-SEVERE: null
+java.net.SocketException: Socket closed
+	at java.net.PlainSocketImpl.socketAccept(Native Method)
+	at java.net.AbstractPlainSocketImpl.accept(AbstractPlainSocketImpl.java:404)
+	at java.net.ServerSocket.implAccept(ServerSocket.java:545)
+	at java.net.ServerSocket.accept(ServerSocket.java:513)
+	at chatserver.ChatServer.run(ChatServer.java:46)
+	at java.lang.Thread.run(Thread.java:744)
+
