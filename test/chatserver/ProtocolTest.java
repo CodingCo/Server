@@ -26,6 +26,7 @@ public class ProtocolTest {
     
     @Before
     public void setUp() {
+	
     }
     
     @After
@@ -38,11 +39,7 @@ public class ProtocolTest {
     @Test
     public void testClose() {
         System.out.println("close");
-        String expResult = "";
-        String result = Protocol.close();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals(Protocol.CLOSE, "CLOSE#");
     }
 
     /**
@@ -51,11 +48,7 @@ public class ProtocolTest {
     @Test
     public void testConnect() {
         System.out.println("connect");
-        String expResult = "";
-        String result = Protocol.connect();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals(Protocol.CONNECT, "CONNECT#");
     }
 
     /**
@@ -64,12 +57,12 @@ public class ProtocolTest {
     @Test
     public void testSend() {
         System.out.println("send");
-        Message message = null;
-        String[] expResult = null;
-        String[] result = Protocol.send(message);
-        assertArrayEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+	
+	ConnectionMock cm;
+	MessageHandlerMock mhm;
+        Message m = new Message(new ClientHandler(cm = new ConnectionMock(),mhm = new MessageHandlerMock()), "SEND#Per#Hello", "Person");
+	String[] testArr = Protocol.send(m);
+	assertEquals(testArr[0], "MESSAGE#Person#Hello");
     }
     
 }
