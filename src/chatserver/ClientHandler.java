@@ -1,6 +1,8 @@
 package chatserver;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -28,7 +30,7 @@ public class ClientHandler implements Runnable {
             connection.open();
             running = true;
         } catch (IOException e) {
-            e.printStackTrace();
+            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, e);
         }
         try {
             String message;
@@ -37,7 +39,7 @@ public class ClientHandler implements Runnable {
                 messageHandler.addToMessagePool(new Message(this, message, name));
             }
         } catch (IOException | InterruptedException ex) {
-            ex.printStackTrace();
+            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -47,8 +49,8 @@ public class ClientHandler implements Runnable {
 
     public void closeConnection() throws IOException {
         running = false;
-
         connection.close();
+        Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, "client: " + name + " disconnected from server");
         System.out.println("connection closed");
     }
 

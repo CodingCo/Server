@@ -5,6 +5,8 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import utility.Utility;
 
 /**
@@ -19,12 +21,14 @@ public class ChatServer implements Runnable {
     public static boolean RUNNING;
     private final String ipAddress;
     private final int port;
-    private Properties property = Utility.initProperties("serverproperties.txt");
+    Properties property = Utility.initProperties("serverproperties.txt");
 
     public ChatServer(MessageHandler messageHandler) {
         this.messageHandler = messageHandler;
         ipAddress = property.getProperty("ipaddress");
         port = Integer.parseInt(property.getProperty("port"));
+        Utility.setLogFile("");
+        Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, "New server created");
     }
 
     @Override
@@ -32,8 +36,8 @@ public class ChatServer implements Runnable {
         try {
             openConnection();
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null,e);
         }
         while (RUNNING) {
             Socket socket;
@@ -43,8 +47,8 @@ public class ChatServer implements Runnable {
                 ClientHandler h = new ClientHandler(new Connection(socket), messageHandler);
                 Thread handlerThread = new Thread(h);
                 handlerThread.start();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (IOException e) {
+                Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null,e);
             }
         }
         System.out.println("server closed");
@@ -54,6 +58,7 @@ public class ChatServer implements Runnable {
         this.serverSocket = new ServerSocket();
         this.serverSocket.bind(new InetSocketAddress(ipAddress, port));
         System.out.println("Connection opened on: " + ipAddress + " port: " + port);
+        Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, "Connection opened on: " + ipAddress + " port: " + port);
 
     }
 
