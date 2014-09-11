@@ -3,6 +3,8 @@ package chatserver;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  *
@@ -14,8 +16,9 @@ public class ServerExecutor {
     static BufferedReader input;
 
     public static void main(String[] args) {
-
-        server = new ChatServer();
+        ArrayBlockingQueue messageQue = new ArrayBlockingQueue(100);
+        MessageHandler msgHandler = new MessageHandler(messageQue, new HashMap());
+        server = new ChatServer(msgHandler);
         server.startServer();
         serverCommands();
     }
@@ -36,7 +39,11 @@ public class ServerExecutor {
     private static void switchCommands(String command) {
         switch (command) {
             case "stop server":
-                server.stopServer();
+                try {
+                    server.stopServer();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
                 break;
             case "start server":
                 server.startServer();

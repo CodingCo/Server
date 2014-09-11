@@ -1,91 +1,55 @@
 package chatserver;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
 
 /**
  *
  * @author Robert
  */
-public class ClientHandler implements HandlerInterface, Runnable {
+public class ClientHandler implements Runnable {
 
-    private final Socket client;
-    private BufferedReader input;
-    private PrintWriter output;
-    private String userName;
+    private final IConnection connection;
+    private final IHandler messageHandler;
+    private String name;
     private boolean running;
 
-    public ClientHandler(Socket client) {
-        this.client = client;
+    public ClientHandler(IConnection connection, IHandler messageHandler) {
+        this.connection = connection;
+        this.messageHandler = messageHandler;
     }
 
-    public void openStreams(Socket client) throws IOException {
-        this.input = new BufferedReader(new InputStreamReader(client.getInputStream()));
-        this.output = new PrintWriter(client.getOutputStream());
-        System.out.println("Client is being handled ");
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
     public void run() {
         try {
-            openStreams(client);
-
-            while (this.running) {
-                String message = input.readLine();
-                System.out.println(message);
+            connection.open();
+            running = true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            String message;
+            while (running) {
+                message = connection.read();
+                messageHandler.addToMessagePool(new Message(this, message, name));
             }
-
-        } catch (IOException ex) {
+        } catch (IOException | InterruptedException ex) {
             ex.printStackTrace();
         }
     }
 
-    private void Connect(String protocol) {
-        if (protocol.startsWith("CONNECT#")) {
-            String name = protocol.replace("CONNECT#", "");
-            Dispatcher.registrerUser(name, this);
-            Dispatcher.sendMessage(null);
-        }
-
-    }
-
-    public void decodeProtocol(String protocol) {
-
-        if (protocol.startsWith("CONNECT#")) {
-            String name = protocol.replace("CONNECT#", "");
-            Dispatcher.registrerUser(name, this);
-            Dispatcher.sendMessage(null);
-
-        } else if (protocol.startsWith("SEND#")) {
-            String[] tokens = protocol.split("#");
-            Dispatcher.sendMessage(new Message(tokens[1], tokens[2], this.userName));
-
-        } else if (protocol.startsWith("CLOSE#")) {
-            try {
-                Dispatcher.sendMessage(null);
-                Dispatcher.deleteUser(userName);
-                this.closeConnection();
-                this.running = false;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        }
+    public void sendMessage(String message) {
+        this.connection.write(message);
     }
 
     public void closeConnection() throws IOException {
-        this.input.close();
-        this.output.close();
-        this.client.close();
-        System.out.println("Gracefull shutdown");
-    }
+        running = false;
 
-    @Override
-    public void sendMessage(String Message) {
-        this.output.println(Message);
+        connection.close();
+        System.out.println("connection closed");
     }
 
 }
