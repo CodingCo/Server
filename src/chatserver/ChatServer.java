@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
+import utility.Utility;
 
 /**
  *
@@ -18,13 +19,12 @@ public class ChatServer implements Runnable {
     public static boolean RUNNING;
     private final String ipAddress;
     private final int port;
-    private Properties property;
+    private Properties property = Utility.initProperties("serverproperties.txt");
 
     public ChatServer(MessageHandler messageHandler) {
         this.messageHandler = messageHandler;
-        ipAddress = "127.0.0.1";
-        port = 8014;
-
+        ipAddress = property.getProperty("ipaddress");
+        port = Integer.parseInt(property.getProperty("port"));
     }
 
     @Override

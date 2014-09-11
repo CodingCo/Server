@@ -1,6 +1,6 @@
 package chatserver;
 
-import exceptions.CloseSuccesException;
+import utility.CloseSuccesException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

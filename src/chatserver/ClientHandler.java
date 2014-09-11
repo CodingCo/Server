@@ -27,15 +27,14 @@ public class ClientHandler implements Runnable {
         try {
             connection.open();
             running = true;
-            if (!running) {
-                return;
-            }
-
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
             String message;
             while (running) {
                 message = connection.read();
                 messageHandler.addToMessagePool(new Message(this, message, name));
-
             }
         } catch (IOException | InterruptedException ex) {
             ex.printStackTrace();
@@ -48,7 +47,7 @@ public class ClientHandler implements Runnable {
 
     public void closeConnection() throws IOException {
         running = false;
-        
+
         connection.close();
         System.out.println("connection closed");
     }
