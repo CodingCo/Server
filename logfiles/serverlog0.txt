@@ -1,2 +1,16 @@
-sep. 11, 2014 5:21:55 PM chatserver.ChatServer <init>
-SEVERE: HEJ
+sep. 11, 2014 5:32:59 PM chatserver.ChatServer <init>
+SEVERE: New server created
+sep. 11, 2014 5:32:59 PM chatserver.ChatServer openConnection
+SEVERE: Connection opened on: 127.0.0.1 port: 8014
+sep. 11, 2014 5:33:12 PM chatserver.MessageHandler notifyClients
+SEVERE: CLOSE#
+sep. 11, 2014 5:33:12 PM chatserver.ChatServer run
+SEVERE: null
+java.net.SocketException: Socket closed
+	at java.net.PlainSocketImpl.socketAccept(Native Method)
+	at java.net.AbstractPlainSocketImpl.accept(AbstractPlainSocketImpl.java:404)
+	at java.net.ServerSocket.implAccept(ServerSocket.java:545)
+	at java.net.ServerSocket.accept(ServerSocket.java:513)
+	at chatserver.ChatServer.run(ChatServer.java:46)
+	at java.lang.Thread.run(Thread.java:744)
+
