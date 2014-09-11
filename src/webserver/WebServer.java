@@ -1,5 +1,6 @@
 package webserver;
 
+import chatserver.MessageHandler;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,7 +34,7 @@ public class WebServer {
             server = HttpServer.create(new InetSocketAddress(ip, port), 0);
             server.createContext("/", new PageHandler());
             server.createContext("/log", new LogHandler());
-            //server.createContext("/users", new UserHandler());
+            server.createContext("/users", new UserHandler());
             server.setExecutor(null); // Use the default executor
             server.start();
             System.out.println("Server started, listening on port: " + port);
@@ -89,7 +91,7 @@ public class WebServer {
         @Override
 
         public void handle(HttpExchange he) throws IOException {
-            
+
             sb = new StringBuilder();
             in = new FileReader(contentFolder + "serverlog0.txt");
             br = new BufferedReader(in);
@@ -101,7 +103,7 @@ public class WebServer {
             sb.append("<meta charset='UTF-8'>\n");
             sb.append("</head>\n");
             sb.append("<body>\n");
-            
+
             sb.append("<table border = 1>\n");
             sb.append("<th>ServerLog</th>");
 
@@ -111,9 +113,9 @@ public class WebServer {
                 sb.append(line);
                 sb.append("</tr></td>");
             }
-            
+
             sb.append("</table>\n");
-           
+
             sb.append("</body>\n");
             sb.append("</html>\n");
             String response = sb.toString();
@@ -121,11 +123,69 @@ public class WebServer {
             h.add("Content-Type", "text/html");
             he.sendResponseHeaders(200, response.length());
             try (PrintWriter pw = new PrintWriter(he.getResponseBody())) {
-                pw.print(response); 
+                pw.print(response);
             }
-            
+
             in.close();
             br.close();
+        }
+    }
+
+    static class UserHandler implements HttpHandler {
+
+        String contentType = "";
+        String[] names;
+        StringBuilder sb;
+
+        @Override
+
+        public void handle(HttpExchange he) throws IOException {
+ 
+            sb = new StringBuilder();
+            
+            /*if (!MessageHandler.getUsernames().isEmpty()) {
+                Set<String> userNames = MessageHandler.getUsernames();
+                names = (String[]) userNames.toArray();
+            }*/
+
+            sb.append("<!DOCTYPE html>\n");
+            sb.append("<html>\n");
+            sb.append("<head>\n");
+            sb.append("<title>Online Users</title>\n");
+            sb.append("<meta charset='UTF-8'>\n");
+            sb.append("</head>\n");
+            sb.append("<body>\n");
+/*
+            sb.append("<table border = 1>\n");
+            sb.append("<th colspan = 10>UserNames</th>");
+
+            for (int i = 0; i < names.length; i++) {
+                if (i == 0 || i % 10 == 0) {
+                    sb.append("<tr>");
+                }
+
+                sb.append("<td>");
+                sb.append(names[i]);
+                sb.append("</td>");
+
+                if (i == 0 || i % 10 == 0) {
+                    sb.append("</tr>");
+                }
+            }
+*/
+            sb.append("<p>");
+            sb.append("Users Online: ");
+            sb.append(MessageHandler.getUserSize());
+            sb.append("</p>");
+            sb.append("</body>\n");
+            sb.append("</html>\n");
+            String response = sb.toString();
+            Headers h = he.getResponseHeaders();
+            h.add("Content-Type", "text/html");
+            he.sendResponseHeaders(200, response.length());
+            try (PrintWriter pw = new PrintWriter(he.getResponseBody())) {
+                pw.print(response);
+            }
         }
     }
 

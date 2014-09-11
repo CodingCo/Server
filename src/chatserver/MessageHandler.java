@@ -2,6 +2,7 @@ package chatserver;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
@@ -11,11 +12,11 @@ import java.util.concurrent.ArrayBlockingQueue;
 public class MessageHandler implements Runnable, IHandler {
 
     private final ArrayBlockingQueue<Message> messages;
-    private final HashMap<String, ClientHandler> users;
+    private static HashMap<String, ClientHandler> users;
 
     public MessageHandler(ArrayBlockingQueue<Message> messages, HashMap<String, ClientHandler> users) {
         this.messages = messages;
-        this.users = users;
+        MessageHandler.users = users;
 
     }
 
@@ -101,4 +102,9 @@ public class MessageHandler implements Runnable, IHandler {
         }
     }
 
+    public static int getUserSize() {
+      
+        return users.size();
+        
+    }
 }
