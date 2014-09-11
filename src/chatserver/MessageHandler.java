@@ -1,8 +1,8 @@
 package chatserver;
 
 import chatroom.HandlerIntf;
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
@@ -27,9 +27,9 @@ public class MessageHandler implements Runnable, HandlerIntf {
 
     @Override
     public void notifyClients(String message) {
-        for (Map.Entry<String, ClientHandler> entry : users.entrySet()) {
+        users.entrySet().stream().forEach((entry) -> {
             entry.getValue().sendMessage(message);
-        }
+        });
     }
 
     @Override
@@ -49,6 +49,15 @@ public class MessageHandler implements Runnable, HandlerIntf {
         messages.put(message);
     }
 
+    public String getOnlineClientNames() {
+        StringBuilder b = new StringBuilder();
+        users.entrySet().stream().forEach((entry) -> {
+            b.append(entry.getKey());
+            b.append(",");
+        });
+        return b.substring(0, b.length() - 1);
+    }
+
     @Override
     public void run() {
         while (true) {
@@ -57,40 +66,34 @@ public class MessageHandler implements Runnable, HandlerIntf {
                 String input = m.getMessage();
 
                 if (input.startsWith("CONNECT#")) {
-                    // TJEK LIGE OM input indehodler navn
-                    if (registrerClients(input, m.getCh())) {
-                        // KONVERTER STRING således, tilføj alle navne på strengen
-                        notifyClients("ONLINE#");
+                    // registrer ClientHandler and client name
+                    if (registrerClients(input.replace("CONNECT#", ""), m.getCh())) {
+                        notifyClients("ONLINE#" + getOnlineClientNames());
                     } else {
                         m.getCh().sendMessage("CLOSE#");
                     }
                 }
+                if (users.containsKey("")) {
 
-                if (input.startsWith("SEND#")) {
-
-                    // split strengne op i modtagere
-                    // afsender
-                    // besked
-                    if ("".equals("*")) {
-                        notifyClients(input);
-                    } else {
-                        // iterate throughe modtager, check if true, notify 
+                    if (input.startsWith("SEND#")) {
+                        String[] tokens = input.replace("SEND#", "").split("#", 1);
+                        if (tokens[0].equals("*")) {
+                            notifyClients("MESSAGE#name#" + tokens[1]);
+                        } else {
+                            for (String names : tokens[0].split(",")) {
+                                notifyReciever("MESSAGE#name#" + tokens[1], users.get(names));
+                            }
+                        }
                     }
 
-                    if (users.containsKey("afsender")) {
-                        notifyClients("MESSAGE# resten af beskeden");
+                    if (input.startsWith("CLOSE#")) {
+                        m.getCh().sendMessage("CLOSE#");
+                        m.getCh().closeConnection();
+                        unregistrerClients(m.getMessage()); // pull out name
+                        notifyClients("ONLINE#" + getOnlineClientNames());
                     }
                 }
-
-                if (input.startsWith("CLOSE#")) {
-                    m.getCh().sendMessage("CLOSE#");
-                    m.getCh().closeConnection();
-                    unregistrerClients(m.getMessage()); // pull out name
-                    notifyClients("ONLINE MESSAGE");
-
-                }
-
-            } catch (Exception e) {
+            } catch (InterruptedException | IOException e) {
                 e.printStackTrace();
             }
         }
