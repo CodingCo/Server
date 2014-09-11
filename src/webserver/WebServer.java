@@ -101,20 +101,19 @@ public class WebServer {
             sb.append("<meta charset='UTF-8'>\n");
             sb.append("</head>\n");
             sb.append("<body>\n");
+            
             sb.append("<table border = 1>\n");
-
             sb.append("<th>ServerLog</th>");
 
             String line;
             while ((line = br.readLine()) != null) {
                 sb.append("<tr><td>");
-                
                 sb.append(line);
                 sb.append("</tr></td>");
             }
             
-
             sb.append("</table>\n");
+           
             sb.append("</body>\n");
             sb.append("</html>\n");
             String response = sb.toString();
