@@ -20,8 +20,8 @@ public class ServerExecutor {
     public static void main(String[] args) {
         ArrayBlockingQueue messageQue = new ArrayBlockingQueue(100);
         MessageHandler msgHandler = new MessageHandler(messageQue, new HashMap());
-        //webServer = new WebServer();
-        //WebServer.startServer();
+        webServer = new WebServer();
+        webServer.startServer();
         server = new ChatServer(msgHandler);
         server.startServer();
         serverCommands();
@@ -43,25 +43,30 @@ public class ServerExecutor {
     }
 
     private static void switchCommands(String command) {
-        switch (command) {
-            case "stop server":
-                try {
+        try {
+            switch (command) {
+                case "stop server":
                     server.stopServer();
-                } catch (IOException ex) {
+                    break;
+                case "start server":
+                    server.startServer();
+                    break;
+                case "status":
+                    System.out.println("running");
+                    break;
+                case "stop web":
+                    webServer.closeHttpServer();
+                    break;
+                case "start web":
+                    webServer.startServer();
+                    break;
+                default:
+                    if (!command.equals("killall")) {
+                        System.out.println("unknow command");
+                    }
+            }
+        } catch (IOException e) {
 
-                }
-                break;
-            case "start server":
-                server.startServer();
-                break;
-            case "status":
-                System.out.println("running");
-                break;
-            default:
-                if (!command.equals("killall")) {
-                    System.out.println("unknow command");
-                }
         }
     }
-
 }

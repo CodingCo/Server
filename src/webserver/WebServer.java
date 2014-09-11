@@ -27,8 +27,7 @@ public class WebServer {
     static int port = 8028;
     static String ip = "127.0.0.1";
 
-    public static void startServer() {
-        HttpServer server;
+    public void startServer() {
         try {
             server = HttpServer.create(new InetSocketAddress(ip, port), 0);
             server.createContext("/", new PageHandler());
@@ -40,6 +39,11 @@ public class WebServer {
         } catch (IOException ex) {
             Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public void closeHttpServer() {
+        this.server.stop(5);
+        System.out.println("webserver closed");
     }
 
     static class PageHandler implements HttpHandler {
@@ -139,14 +143,13 @@ public class WebServer {
         @Override
 
         public void handle(HttpExchange he) throws IOException {
- 
-            sb = new StringBuilder();
-            
-            /*if (!MessageHandler.getUsernames().isEmpty()) {
-                Set<String> userNames = MessageHandler.getUsernames();
-                names = (String[]) userNames.toArray();
-            }*/
 
+            sb = new StringBuilder();
+
+            /*if (!MessageHandler.getUsernames().isEmpty()) {
+             Set<String> userNames = MessageHandler.getUsernames();
+             names = (String[]) userNames.toArray();
+             }*/
             sb.append("<!DOCTYPE html>\n");
             sb.append("<html>\n");
             sb.append("<head>\n");
@@ -154,24 +157,24 @@ public class WebServer {
             sb.append("<meta charset='UTF-8'>\n");
             sb.append("</head>\n");
             sb.append("<body>\n");
-/*
-            sb.append("<table border = 1>\n");
-            sb.append("<th colspan = 10>UserNames</th>");
+            /*
+             sb.append("<table border = 1>\n");
+             sb.append("<th colspan = 10>UserNames</th>");
 
-            for (int i = 0; i < names.length; i++) {
-                if (i == 0 || i % 10 == 0) {
-                    sb.append("<tr>");
-                }
+             for (int i = 0; i < names.length; i++) {
+             if (i == 0 || i % 10 == 0) {
+             sb.append("<tr>");
+             }
 
-                sb.append("<td>");
-                sb.append(names[i]);
-                sb.append("</td>");
+             sb.append("<td>");
+             sb.append(names[i]);
+             sb.append("</td>");
 
-                if (i == 0 || i % 10 == 0) {
-                    sb.append("</tr>");
-                }
-            }
-*/
+             if (i == 0 || i % 10 == 0) {
+             sb.append("</tr>");
+             }
+             }
+             */
             sb.append("<p>");
             sb.append("Users Online: ");
             sb.append(MessageHandler.getUserSize());
@@ -191,8 +194,6 @@ public class WebServer {
     private static String getContentType(String s) {
 
         String contentType = s.substring(s.lastIndexOf(".") + 1);
-        System.out.println(contentType);
-
         switch (contentType) {
             case "html":
                 return "text/html";
