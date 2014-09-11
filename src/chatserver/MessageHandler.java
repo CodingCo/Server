@@ -3,6 +3,8 @@ package chatserver;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -20,18 +22,6 @@ public class MessageHandler implements Runnable, IHandler {
     }
 
     @Override
-    public void notifyReciever(String message, ClientHandler handler) {
-        handler.sendMessage(message);
-    }
-
-    @Override
-    public void notifyClients(String message) {
-        users.entrySet().stream().forEach((entry) -> {
-            entry.getValue().sendMessage(message);
-        });
-    }
-
-    @Override
     public boolean registrerClients(String name, ClientHandler handler) {
         users.put(name, handler);
         return users.containsKey(name);
@@ -40,7 +30,21 @@ public class MessageHandler implements Runnable, IHandler {
     @Override
     public boolean unregistrerClients(String name) {
         users.remove(name);
-        return users.containsKey(name);
+        return !users.containsKey(name);
+    }
+
+    @Override
+    public void notifyReciever(String message, ClientHandler handler) {
+        Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, message);
+        handler.sendMessage(message);
+    }
+
+    @Override
+    public void notifyClients(String message) {
+        Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, message);
+        users.entrySet().stream().forEach((entry) -> {
+            entry.getValue().sendMessage(message);
+        });
     }
 
     @Override
@@ -96,7 +100,7 @@ public class MessageHandler implements Runnable, IHandler {
                     }
                 }
             } catch (InterruptedException | IOException e) {
-                e.printStackTrace();
+                Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, e);
             }
         }
     }
