@@ -3,6 +3,7 @@ package chatserver;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import utility.CloseSuccesException;
 
 /**
  *
@@ -13,7 +14,6 @@ public class ClientHandler implements Runnable {
     private final IConnection connection;
     private final IHandler messageHandler;
     private String name;
-    private boolean running;
 
     public ClientHandler(IConnection connection, IHandler messageHandler) {
         this.connection = connection;
@@ -28,18 +28,17 @@ public class ClientHandler implements Runnable {
     public void run() {
         try {
             connection.open();
-            running = true;
         } catch (IOException e) {
             Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, e);
         }
         try {
             String message;
-            while (running) {
-                message = connection.read();
+            while ((message = connection.read()) != null) {
                 messageHandler.addToMessagePool(new Message(this, message, name));
             }
+            messageHandler.addToMessagePool(new Message(this, "CLOSE#", name));
         } catch (IOException | InterruptedException ex) {
-            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, ex.getMessage());
         }
     }
 
@@ -48,7 +47,6 @@ public class ClientHandler implements Runnable {
     }
 
     public void closeConnection() throws IOException {
-        running = false;
         connection.close();
         Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, "client: " + name + " disconnected from server");
         System.out.println("connection closed");

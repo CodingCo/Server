@@ -1,7 +1,7 @@
 package chatserver;
 
-import utility.CloseSuccesException;
 import java.io.IOException;
+import utility.CloseSuccesException;
 
 /**
  *

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
+import webserver.WebServer;
 
 /**
  *
@@ -14,10 +15,13 @@ public class ServerExecutor {
 
     static ChatServer server;
     static BufferedReader input;
+    static WebServer webServer;
 
     public static void main(String[] args) {
         ArrayBlockingQueue messageQue = new ArrayBlockingQueue(100);
         MessageHandler msgHandler = new MessageHandler(messageQue, new HashMap());
+        //webServer = new WebServer();
+        //WebServer.startServer();
         server = new ChatServer(msgHandler);
         server.startServer();
         serverCommands();
@@ -30,9 +34,11 @@ public class ServerExecutor {
             do {
                 switchCommands(command);
             } while (!(command = r.readLine()).contains("killall"));
+            r.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.exit(0);
         System.out.println("server shutdown");
     }
 
@@ -42,7 +48,7 @@ public class ServerExecutor {
                 try {
                     server.stopServer();
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+
                 }
                 break;
             case "start server":

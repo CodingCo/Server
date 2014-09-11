@@ -1,10 +1,4 @@
-sep. 11, 2014 5:32:59 PM chatserver.ChatServer <init>
-SEVERE: New server created
-sep. 11, 2014 5:32:59 PM chatserver.ChatServer openConnection
-SEVERE: Connection opened on: 127.0.0.1 port: 8014
-sep. 11, 2014 5:33:12 PM chatserver.MessageHandler notifyClients
-SEVERE: CLOSE#
-sep. 11, 2014 5:33:12 PM chatserver.ChatServer run
+sep. 11, 2014 8:58:25 PM chatserver.ChatServer run
 SEVERE: null
 java.net.SocketException: Socket closed
 	at java.net.PlainSocketImpl.socketAccept(Native Method)

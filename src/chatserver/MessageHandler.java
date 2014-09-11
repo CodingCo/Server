@@ -13,7 +13,8 @@ import java.util.logging.Logger;
 public class MessageHandler implements Runnable, IHandler {
 
     private final ArrayBlockingQueue<Message> messages;
-    private final HashMap<String, ClientHandler> users;
+    private HashMap<String, ClientHandler> users;
+    boolean running = true;
 
     public MessageHandler(ArrayBlockingQueue<Message> messages, HashMap<String, ClientHandler> users) {
         this.messages = messages;
@@ -35,13 +36,11 @@ public class MessageHandler implements Runnable, IHandler {
 
     @Override
     public void notifyReciever(String message, ClientHandler handler) {
-        Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, message);
         handler.sendMessage(message);
     }
 
     @Override
     public void notifyClients(String message) {
-        Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, message);
         users.entrySet().stream().forEach((entry) -> {
             entry.getValue().sendMessage(message);
         });
@@ -61,48 +60,67 @@ public class MessageHandler implements Runnable, IHandler {
         return b.substring(0, b.length() - 1);
     }
 
+    public void stop() {
+        this.running = false;
+        Thread.currentThread().interrupt();
+    }
+
     @Override
     public void run() {
-        while (ChatServer.RUNNING) {
+        while (running) {
             try {
-
                 Message m = messages.take();
                 String input = m.getMessage();
-                if (input.startsWith(Protocol.CONNECT)) {
-                    // registrer ClientHandler and client name
-                    String name = input.replace(Protocol.CONNECT, "");
-                    if (registrerClients(name, m.getClientHandler())) {
-                        notifyClients(Protocol.connect() + getOnlineClientNames());
-                        m.getClientHandler().setName(name);
-                    } else {
-                        notifyReciever(Protocol.close(), m.getClientHandler());
-                    }
-                }
-                if (users.containsKey(m.getSender())) {
-                    if (input.startsWith(Protocol.SEND)) {
-                        String[] x = Protocol.send(m);
-                        if (x.length == 1) {
-                            notifyClients(x[0]);
-                        } else {
-                            for (String string : x[1].split(",")) {
-                                notifyReciever(x[0], users.get(string));
+                System.out.println("message is: " + input);
+                if (input != null) {
+                    if (input.startsWith(Protocol.CONNECT)) {
+                        // registrer ClientHandler and client name
+                        String name = input.replace(Protocol.CONNECT, "").trim();
+                        if (!users.containsValue(m.getClientHandler())) {
+                            if (registrerClients(name, m.getClientHandler())) {
+                                notifyClients(Protocol.connect() + getOnlineClientNames());
+                                m.getClientHandler().setName(name);
+                                System.out.println("user: " + name + " is online");
+                            } else {
+                                notifyReciever(Protocol.close(), m.getClientHandler());
                             }
+                        } else {
+                            m.getClientHandler().sendMessage("MESSAGE#server# you are already online");
                         }
                     }
-                    if (input.startsWith(Protocol.CLOSE)) {
+                    if (users.containsKey(m.getSender())) {
+                        if (input.startsWith(Protocol.SEND)) {
+                            String[] x = Protocol.send(m);
+                            if (x.length == 1) {
+                                notifyClients(x[0]);
+                            } else {
+                                for (String string : x[1].split(",")) {
+                                    if (users.containsKey(string)) {
+                                        notifyReciever(x[0], users.get(string));
+                                    }
+                                }
+                            }
+                        }
+                        if (input.startsWith(Protocol.CLOSE)) {
 
-                        m.getClientHandler().sendMessage(Protocol.close());
-                        unregistrerClients(m.getSender());
-                        m.getClientHandler().closeConnection();
-                        if (!users.isEmpty()) {
-                            notifyClients(Protocol.ONLINE + getOnlineClientNames());
+                            m.getClientHandler().sendMessage(Protocol.close());
+                            unregistrerClients(m.getSender());
+                            m.getClientHandler().closeConnection();
+                            if (!users.isEmpty()) {
+                                notifyClients(Protocol.ONLINE + getOnlineClientNames());
+                            }
                         }
                     }
                 }
             } catch (InterruptedException | IOException e) {
                 Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, e);
+                return;
             }
         }
     }
 
+    public static int getUserSize() {
+        //return users.size();
+        return 1;
+    }
 }

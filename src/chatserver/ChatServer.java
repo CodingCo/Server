@@ -16,11 +16,12 @@ import utility.Utility;
 public class ChatServer implements Runnable {
 
     private ServerSocket serverSocket;
-    private final MessageHandler messageHandler;
+    private MessageHandler messageHandler;
 
-    public static boolean RUNNING;
+    public static volatile boolean RUNNING;
     private final String ipAddress;
     private final int port;
+
     Properties property = Utility.initProperties("serverproperties.txt");
 
     public ChatServer(MessageHandler messageHandler) {
@@ -28,7 +29,6 @@ public class ChatServer implements Runnable {
         ipAddress = property.getProperty("ipaddress");
         port = Integer.parseInt(property.getProperty("port"));
         Utility.setLogFile("");
-        Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, "New server created");
     }
 
     @Override
@@ -37,7 +37,7 @@ public class ChatServer implements Runnable {
             openConnection();
 
         } catch (IOException e) {
-            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null,e);
+            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, e);
         }
         while (RUNNING) {
             Socket socket;
@@ -48,7 +48,7 @@ public class ChatServer implements Runnable {
                 Thread handlerThread = new Thread(h);
                 handlerThread.start();
             } catch (IOException e) {
-                Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null,e);
+                Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, e);
             }
         }
         System.out.println("server closed");
@@ -58,21 +58,23 @@ public class ChatServer implements Runnable {
         this.serverSocket = new ServerSocket();
         this.serverSocket.bind(new InetSocketAddress(ipAddress, port));
         System.out.println("Connection opened on: " + ipAddress + " port: " + port);
-        Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, "Connection opened on: " + ipAddress + " port: " + port);
 
     }
 
     public void startServer() {
-        Thread server = new Thread(this);
+        RUNNING = true;
+        Thread serverThread = new Thread(this);
         Thread message = new Thread(messageHandler);
         message.start();
-        server.start();
-        RUNNING = true;
+        System.out.println("message " + message.getName());
+        serverThread.start();
+        System.out.println("server " + serverThread.getName());
     }
 
     public void stopServer() throws IOException {
         messageHandler.notifyClients("CLOSE#");
         RUNNING = false;
+        messageHandler.stop();
         this.serverSocket.close();
         System.out.println("closed");
     }

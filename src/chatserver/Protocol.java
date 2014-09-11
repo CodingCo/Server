@@ -24,14 +24,18 @@ public class Protocol {
 
     public static String[] send(Message message) {
         String input = message.getMessage();
-        String[] tokens = input.replace(SEND, "").split("#", 2);
+        String[] tokens = input.replaceFirst(SEND, "").split("#", 2);
+        for (String string : tokens) {
+            System.out.println(string);
+        }
         if (tokens[0].equals(ALL)) {
             return new String[]{(MESSAGE + message.getSender() + "#" + tokens[1])};
         } else {
             String[] info = new String[2];
             info[0] = (MESSAGE + message.getSender() + "#" + tokens[1]);
-            info[1] = tokens[1];
+            info[1] = tokens[0];
             return info;
         }
     }
+
 }

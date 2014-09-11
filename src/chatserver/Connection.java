@@ -35,8 +35,10 @@ public class Connection implements IConnection {
     public void close() throws CloseSuccesException {
         try {
             socket.close();
+            input.close();
+            output.close();
         } catch (IOException e) {
-            throw new CloseSuccesException("Connection succesfully closed");
+
         }
     }
 
