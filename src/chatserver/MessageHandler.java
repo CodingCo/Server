@@ -67,29 +67,29 @@ public class MessageHandler implements Runnable, HandlerIntf {
 
                 if (input.startsWith("CONNECT#")) {
                     // registrer ClientHandler and client name
-                    if (registrerClients(input.replace("CONNECT#", ""), m.getCh())) {
+                    if (registrerClients(input.replace("CONNECT#", ""), m.getClientHandler())) {
                         notifyClients("ONLINE#" + getOnlineClientNames());
                     } else {
-                        m.getCh().sendMessage("CLOSE#");
+                        notifyReciever("CLOSE#", m.clientHandler);
                     }
                 }
-                if (users.containsKey("")) {
+                if (users.containsKey(m.getSender())) {
 
                     if (input.startsWith("SEND#")) {
                         String[] tokens = input.replace("SEND#", "").split("#", 1);
                         if (tokens[0].equals("*")) {
-                            notifyClients("MESSAGE#name#" + tokens[1]);
+                            notifyClients("MESSAGE#" + m.getSender() + "#" + tokens[1]);
                         } else {
                             for (String names : tokens[0].split(",")) {
-                                notifyReciever("MESSAGE#name#" + tokens[1], users.get(names));
+                                notifyReciever("MESSAGE#" + m.getSender() + "#" + tokens[1], users.get(names));
                             }
                         }
                     }
 
                     if (input.startsWith("CLOSE#")) {
-                        m.getCh().sendMessage("CLOSE#");
-                        m.getCh().closeConnection();
-                        unregistrerClients(m.getMessage()); // pull out name
+                        m.getClientHandler().sendMessage("CLOSE#");
+                        m.getClientHandler().closeConnection();
+                        unregistrerClients(m.getSender());
                         notifyClients("ONLINE#" + getOnlineClientNames());
                     }
                 }

@@ -17,6 +17,7 @@ public class ClientHandler implements Runnable {
     private BufferedReader input;
     private PrintWriter output;
     private HandlerIntf messageHandler;
+    private String name;
 
     private boolean running = true;
 
@@ -37,7 +38,7 @@ public class ClientHandler implements Runnable {
             String message;
             while (running) {
                 message = input.readLine();
-                messageHandler.addToMessagePool(new Message(this, message));
+                messageHandler.addToMessagePool(new Message(this, message, name));
             }
         } catch (IOException | InterruptedException ex) {
             ex.printStackTrace();

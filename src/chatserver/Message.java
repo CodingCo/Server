@@ -6,20 +6,26 @@ package chatserver;
  */
 public class Message {
 
-    ClientHandler ch;
+    ClientHandler clientHandler;
     String message;
+    String sender;
 
-    public Message(ClientHandler ch, String message) {
-        this.ch = ch;
+    public Message(ClientHandler ch, String message, String sender) {
+        this.clientHandler = ch;
         this.message = message;
+        this.sender = sender;
     }
 
-    public ClientHandler getCh() {
-        return ch;
+    public ClientHandler getClientHandler() {
+        return clientHandler;
     }
 
     public String getMessage() {
         return message;
+    }
+
+    public String getSender() {
+        return sender;
     }
 
 }
