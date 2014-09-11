@@ -1,13 +1,10 @@
-package chatroom;
-
-import chatserver.ClientHandler;
-import chatserver.Message;
+package chatserver;
 
 /**
  *
  * @author Grønborg
  */
-public interface HandlerIntf {
+public interface IHandler {
 
     public void notifyClients(String message);
 

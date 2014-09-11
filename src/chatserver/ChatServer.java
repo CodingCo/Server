@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Properties;
 
 /**
  *
@@ -12,17 +13,18 @@ import java.net.Socket;
 public class ChatServer implements Runnable {
 
     private ServerSocket serverSocket;
-    private final MessageHandler mh;
+    private final MessageHandler messageHandler;
 
-    private boolean running;
+    public static boolean RUNNING;
     private final String ipAddress;
     private final int port;
+    private Properties property;
 
-    public ChatServer(MessageHandler mh) {
-        this.mh = mh;
-        this.ipAddress = "127.0.0.1";
-        this.port = 8014;
-        running = true;
+    public ChatServer(MessageHandler messageHandler) {
+        this.messageHandler = messageHandler;
+        ipAddress = "127.0.0.1";
+        port = 8014;
+
     }
 
     @Override
@@ -33,12 +35,12 @@ public class ChatServer implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        while (running) {
+        while (RUNNING) {
             Socket socket;
             try {
                 System.out.println("waiting for connection");
                 socket = serverSocket.accept();
-                ClientHandler h = new ClientHandler(socket, mh);
+                ClientHandler h = new ClientHandler(new Connection(socket), messageHandler);
                 Thread handlerThread = new Thread(h);
                 handlerThread.start();
             } catch (Exception e) {
@@ -57,14 +59,15 @@ public class ChatServer implements Runnable {
 
     public void startServer() {
         Thread server = new Thread(this);
-        Thread message = new Thread(mh);
+        Thread message = new Thread(messageHandler);
         message.start();
         server.start();
-        this.running = true;
+        RUNNING = true;
     }
 
     public void stopServer() throws IOException {
-        this.running = false;
+        messageHandler.notifyClients("CLOSE#");
+        RUNNING = false;
         this.serverSocket.close();
         System.out.println("closed");
     }

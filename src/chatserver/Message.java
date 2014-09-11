@@ -6,9 +6,9 @@ package chatserver;
  */
 public class Message {
 
-    ClientHandler clientHandler;
-    String message;
-    String sender;
+    private final ClientHandler clientHandler;
+    private final String message;
+    private final String sender;
 
     public Message(ClientHandler ch, String message, String sender) {
         this.clientHandler = ch;

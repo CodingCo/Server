@@ -1,6 +1,5 @@
 package chatserver;
 
-import chatroom.HandlerIntf;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -9,10 +8,10 @@ import java.util.concurrent.ArrayBlockingQueue;
  *
  * @author Robert
  */
-public class MessageHandler implements Runnable, HandlerIntf {
+public class MessageHandler implements Runnable, IHandler {
 
-    private ArrayBlockingQueue<Message> messages;
-    private HashMap<String, ClientHandler> users;
+    private final ArrayBlockingQueue<Message> messages;
+    private final HashMap<String, ClientHandler> users;
 
     public MessageHandler(ArrayBlockingQueue<Message> messages, HashMap<String, ClientHandler> users) {
         this.messages = messages;
@@ -60,37 +59,40 @@ public class MessageHandler implements Runnable, HandlerIntf {
 
     @Override
     public void run() {
-        while (true) {
+        while (ChatServer.RUNNING) {
             try {
+
                 Message m = messages.take();
                 String input = m.getMessage();
-
-                if (input.startsWith("CONNECT#")) {
+                if (input.startsWith(Protocol.CONNECT)) {
                     // registrer ClientHandler and client name
-                    if (registrerClients(input.replace("CONNECT#", ""), m.getClientHandler())) {
-                        notifyClients("ONLINE#" + getOnlineClientNames());
+                    String name = input.replace(Protocol.CONNECT, "");
+                    if (registrerClients(name, m.getClientHandler())) {
+                        notifyClients(Protocol.connect() + getOnlineClientNames());
+                        m.getClientHandler().setName(name);
                     } else {
-                        notifyReciever("CLOSE#", m.clientHandler);
+                        notifyReciever(Protocol.close(), m.getClientHandler());
                     }
                 }
                 if (users.containsKey(m.getSender())) {
-
-                    if (input.startsWith("SEND#")) {
-                        String[] tokens = input.replace("SEND#", "").split("#", 1);
-                        if (tokens[0].equals("*")) {
-                            notifyClients("MESSAGE#" + m.getSender() + "#" + tokens[1]);
+                    if (input.startsWith(Protocol.SEND)) {
+                        String[] x = Protocol.send(m);
+                        if (x.length == 1) {
+                            notifyClients(x[0]);
                         } else {
-                            for (String names : tokens[0].split(",")) {
-                                notifyReciever("MESSAGE#" + m.getSender() + "#" + tokens[1], users.get(names));
+                            for (String string : x[1].split(",")) {
+                                notifyReciever(x[0], users.get(string));
                             }
                         }
                     }
+                    if (input.startsWith(Protocol.CLOSE)) {
 
-                    if (input.startsWith("CLOSE#")) {
-                        m.getClientHandler().sendMessage("CLOSE#");
-                        m.getClientHandler().closeConnection();
+                        m.getClientHandler().sendMessage(Protocol.close());
                         unregistrerClients(m.getSender());
-                        notifyClients("ONLINE#" + getOnlineClientNames());
+                        m.getClientHandler().closeConnection();
+                        if (!users.isEmpty()) {
+                            notifyClients(Protocol.ONLINE + getOnlineClientNames());
+                        }
                     }
                 }
             } catch (InterruptedException | IOException e) {
