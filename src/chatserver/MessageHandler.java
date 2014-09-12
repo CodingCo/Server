@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 public class MessageHandler implements Runnable, IHandler {
 
     private final ArrayBlockingQueue<Message> messages;
-    private HashMap<String, ClientHandler> users;
+    private static HashMap<String, ClientHandler> users;
     boolean running = true;
 
     public MessageHandler(ArrayBlockingQueue<Message> messages, HashMap<String, ClientHandler> users) {
@@ -119,8 +119,12 @@ public class MessageHandler implements Runnable, IHandler {
         }
     }
 
-    public static int getUserSize() {
-        //return users.size();
-        return 1;
+    public static String getUserSize() {
+        StringBuilder b = new StringBuilder();
+        users.entrySet().stream().forEach((entry) -> {
+            b.append(entry.getKey());
+            b.append(",");
+        });
+        return b.toString();
     }
 }

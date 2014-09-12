@@ -1,22 +1,81 @@
 <!DOCTYPE html>
-
 <html>
-	<head>
-		<meta charset="utf-8" />
-        <title>Forside</title>
-		<link rel="stylesheet" href="main.css"/>
-		
-		
-	</head>
-	<body>
-        <nav><a href="documentation.html">Link til dokumentation</a></nav>
+<head>
+    <meta charset="utf-8"/>
+    <title>Gang of five</title>
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.css"/>
+    <link rel="stylesheet" type="text/css" href="indexstyle.css"/>
 
-        <h1>Title</h1>
+</head>
+<body>
+<div class="nav-wrap">
+    <div class="container">
+        <ul class="nav nav-pills pull-left">
+            <li class="active"><a href="#">brav3h3art</a></li>
+            <li><a href="documentation.html">Documentation</a></li>
+            <li><a href="wireshark.html">wireshark</a></li>
+            <li><a href="/log">Admin</a></li>
+        </ul>
+        <ul class="nav nav-pills pull-right">
+            <li><a href="https://github.com/CodingCo/Client">View on Github</a></li>
+            <li><a href="#">Download Brav3h3art</a></li>
+        </ul>
+    </div>
+</div>
 
-        <h2>Part 1</h2>
-        <p>This text describe part 1.</p>
-        <samp>for (Car c : listOfCars) c.refuel();</samp><br />
-        
-	
-	</body>
+<div class="container">
+
+    <div class="jumbotron">
+        <h1> brav3h3art</h1>
+
+        <p>Fully featured, nimble designed, seamlessly connected chatclient and server... made just for you</p>
+
+    </div>
+
+
+
+
+
+    <div id="space">
+
+
+    </div>
+
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-heading">
+            Server commands
+        </div>
+        <div class="panel-body">
+            <p>the commands available to control brav3h3art chatserver and webpage</p>
+        </div>
+        <!-- List group -->
+        <ul class="list-group">
+            <li class="list-group-item">
+                <code>start server</code> starts the chatserver
+            </li>
+            <li class="list-group-item">
+                <code>stop server</code> stops the chatserver
+            </li>
+            <li class="list-group-item">
+                <code>start web</code> starts the webserver
+            </li>
+            <li class="list-group-item">
+                <code>stop web</code> stops the webserver
+            </li>
+            <li class="list-group-item">
+                <code>killall</code> stops the webserver and chatserver
+            </li>
+        </ul>
+    </div>
+
+
+</div>
+<div class="container">
+    <footer>
+        <p>this website is made by G5 - viewed best in desktop browser</p>
+    </footer>
+</div>
+</body>
+
 </html>

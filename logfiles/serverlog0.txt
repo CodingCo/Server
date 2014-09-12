@@ -1,10 +1,2 @@
-sep. 11, 2014 8:58:25 PM chatserver.ChatServer run
+sep. 12, 2014 3:50:46 PM chatserver.ClientHandler closeConnection
 SEVERE: null
-java.net.SocketException: Socket closed
-	at java.net.PlainSocketImpl.socketAccept(Native Method)
-	at java.net.AbstractPlainSocketImpl.accept(AbstractPlainSocketImpl.java:404)
-	at java.net.ServerSocket.implAccept(ServerSocket.java:545)
-	at java.net.ServerSocket.accept(ServerSocket.java:513)
-	at chatserver.ChatServer.run(ChatServer.java:46)
-	at java.lang.Thread.run(Thread.java:744)
-

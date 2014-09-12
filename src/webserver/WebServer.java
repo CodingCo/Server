@@ -59,10 +59,9 @@ public class WebServer {
             File file;
 
             if (fileName.isEmpty() || fileName.equals("/")) {
-                file = new File(contentFolder + "index2.html");
+                file = new File(contentFolder + "index.html");
             } else {
                 contentType = getContentType(fileName);
-                System.out.println(contentType);
                 file = new File(contentFolder + fileName);
             }
 
@@ -99,29 +98,46 @@ public class WebServer {
             in = new FileReader(contentFolder + "serverlog0.txt");
             br = new BufferedReader(in);
 
-            sb.append("<!DOCTYPE html>\n");
-            sb.append("<html>\n");
-            sb.append("<head>\n");
-            sb.append("<title>Server Log</title>\n");
-            sb.append("<meta charset='UTF-8'>\n");
-            sb.append("</head>\n");
-            sb.append("<body>\n");
+            File first = new File("public/" + "admin1.html");
+            File second = new File("public/" + "admin2.html");
+            File third = new File("public/" + "admin3.html");
+            BufferedReader reader = new BufferedReader(new FileReader(first));
+            StringBuilder hbr = new StringBuilder();
 
-            sb.append("<table border = 1>\n");
-            sb.append("<th>ServerLog</th>");
-
+            String input;
+            while ((input = reader.readLine()) != null) {
+                hbr.append(input);
+            }
             String line;
             while ((line = br.readLine()) != null) {
-                sb.append("<tr><td>");
-                sb.append(line);
-                sb.append("</tr></td>");
+                hbr.append("<li class=\"list-group-item\">");
+                hbr.append(line);
+                hbr.append("</li>");
+            }
+            reader = new BufferedReader(new FileReader(second));
+            while ((input = reader.readLine()) != null) {
+                hbr.append(input);
             }
 
-            sb.append("</table>\n");
+            String onlineUsers = MessageHandler.getUserSize();
+            if (onlineUsers.equals("")) {
+                hbr.append("<li class=\"list-group-item list-group-item-danger \">");
+                hbr.append("no users online");
+                hbr.append("</li>");
+            } else {
+                for (String name : onlineUsers.split(",")) {
+                    hbr.append("<li class=\"list-group-item list-group-item-success \">");
+                    hbr.append(name);
+                    hbr.append("</li>");
+                }
 
-            sb.append("</body>\n");
-            sb.append("</html>\n");
-            String response = sb.toString();
+            }
+            reader = new BufferedReader(new FileReader(third));
+            while ((input = reader.readLine()) != null) {
+                hbr.append(input);
+            }
+
+            String response = hbr.toString();
             Headers h = he.getResponseHeaders();
             h.add("Content-Type", "text/html");
             he.sendResponseHeaders(200, response.length());
@@ -131,6 +147,7 @@ public class WebServer {
 
             in.close();
             br.close();
+
         }
     }
 
