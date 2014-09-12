@@ -1,2 +1,6 @@
-sep. 12, 2014 3:50:46 PM chatserver.ClientHandler closeConnection
+sep. 12, 2014 6:27:44 PM chatserver.ClientHandler run
+SEVERE: Socket closed
+sep. 12, 2014 6:27:44 PM chatserver.ClientHandler closeConnection
 SEVERE: null
+sep. 12, 2014 6:28:00 PM chatserver.ChatServer run
+INFO: disconnected and input

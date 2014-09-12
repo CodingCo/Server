@@ -1,1 +1,1 @@
-java -cp java -cp dist/ServerSide.jar chatserver.ServerExecutor
+java -cp dist/ServerSide.jar chatserver.ServerExecutor

@@ -14,8 +14,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import utility.Utility;
 
 /**
  *
@@ -24,10 +26,12 @@ import java.util.logging.Logger;
 public class WebServer {
 
     private HttpServer server;
-    static int port = 8028;
-    static String ip = "127.0.0.1";
-
+    int port = 8030;
+    String ip = "127.0.0.1";
+    Properties property = Utility.initProperties("serverproperties.txt");
     public void startServer() {
+        ip = property.getProperty("ipaddress", "100.85.90.7");
+        port = Integer.parseInt(property.getProperty("webport","8028"));
         try {
             server = HttpServer.create(new InetSocketAddress(ip, port), 0);
             server.createContext("/", new PageHandler());

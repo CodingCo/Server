@@ -122,7 +122,7 @@ public class MessageHandler implements Runnable, IHandler {
     public static String getUserSize() {
         StringBuilder b = new StringBuilder();
         users.entrySet().stream().forEach((entry) -> {
-            b.append(entry.getKey());
+            b.append(entry.getKey()); 
             b.append(",");
         });
         return b.toString();

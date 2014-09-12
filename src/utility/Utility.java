@@ -22,7 +22,7 @@ public class Utility {
             properties.load(is);
         } catch (IOException e) {
             System.out.println("unable to load file");
-            return null;
+           
         }
         return properties;
     }
@@ -36,7 +36,7 @@ public class Utility {
             logger.addHandler(handler);
         } catch (IOException ex) {
             System.out.println("logging error - no file");
-            ex.printStackTrace();
+            
         }
     }
 
