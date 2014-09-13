@@ -1,5 +1,6 @@
 package chatserver;
 
+import serverinterfaces.IHandler;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -17,17 +18,15 @@ public class ChatServer implements Runnable {
 
     private ServerSocket serverSocket;
     private MessageHandler messageHandler;
-
-    public static volatile boolean RUNNING;
     private final String ipAddress;
     private final int port;
+    private Properties property = Utility.initProperties("serverproperties.txt");
+    private boolean running = true;
 
-    Properties property = Utility.initProperties("serverproperties.txt");
-
-    public ChatServer(MessageHandler messageHandler) {
-        this.messageHandler = messageHandler;
-        ipAddress = property.getProperty("ipaddress");
-        port = Integer.parseInt(property.getProperty("port"));
+    public ChatServer(IHandler messageHandler) {
+        this.messageHandler = (MessageHandler) messageHandler;
+        this.ipAddress = property.getProperty("ipaddress");
+        this.port = Integer.parseInt(property.getProperty("port"));
         Utility.setLogFile("");
     }
 
@@ -35,21 +34,18 @@ public class ChatServer implements Runnable {
     public void run() {
         try {
             openConnection();
+            while (running) {
+                Socket socket;
 
-        } catch (IOException e) {
-            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, e);
-        }
-        while (RUNNING) {
-            Socket socket;
-            try {
                 System.out.println("waiting for connection");
                 socket = serverSocket.accept();
                 ClientHandler h = new ClientHandler(new Connection(socket), messageHandler);
                 Thread handlerThread = new Thread(h);
                 handlerThread.start();
-            } catch (IOException e) {
-                Logger.getLogger(ChatServer.class.getName()).log(Level.INFO,"disconnected and input");
             }
+
+        } catch (IOException e) {
+            Logger.getLogger(ChatServer.class.getName()).log(Level.INFO, "disconnected");
         }
         System.out.println("server closed");
     }
@@ -62,21 +58,22 @@ public class ChatServer implements Runnable {
     }
 
     public void startServer() {
-        RUNNING = true;
         Thread serverThread = new Thread(this);
-        Thread message = new Thread(messageHandler);
-        message.start();
-        System.out.println("message " + message.getName());
+        Thread handlerThread = new Thread(messageHandler);
+        handlerThread.start();
         serverThread.start();
+        System.out.println("message " + handlerThread.getName());
         System.out.println("server " + serverThread.getName());
     }
 
-    public void stopServer() throws IOException {
-        messageHandler.notifyClients("CLOSE#");
-        RUNNING = false;
-        messageHandler.stop();
-        this.serverSocket.close();
-        System.out.println("closed");
+    public void stopServer() {
+        try {
+            messageHandler.notifyUsers(Protocol.CLOSE);
+            serverSocket.close();
+        } catch (IOException ex) {
+             Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, "Could not disconnect");
+        }
+
     }
 
 }

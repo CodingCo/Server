@@ -1,5 +1,8 @@
 package chatserver;
 
+import serverinterfaces.IHandler;
+import serverinterfaces.IClient;
+import serverinterfaces.IConnection;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -8,7 +11,7 @@ import java.util.logging.Logger;
  *
  * @author Robert
  */
-public class ClientHandler implements Runnable {
+public class ClientHandler implements Runnable, IClient {
 
     private final IConnection connection;
     private final IHandler messageHandler;
@@ -27,28 +30,35 @@ public class ClientHandler implements Runnable {
     public void run() {
         try {
             connection.open();
-        } catch (IOException e) {
-            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, e);
-        }
-        try {
             String message;
+
             while ((message = connection.read()) != null) {
                 messageHandler.addToMessagePool(new Message(this, message, name));
             }
-            messageHandler.addToMessagePool(new Message(this, "CLOSE#", name));
         } catch (IOException | InterruptedException ex) {
-            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, ex.getMessage());
+            Logger.getLogger(ClientHandler.class.getName()).log(Level.INFO, ex.toString());
+        } finally {
+            secureExit();
         }
     }
 
+    public void secureExit() {
+        try {
+            messageHandler.addToMessagePool(new Message(this, "CLOSE#", name));
+        } catch (InterruptedException e) {
+            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, e.toString());
+        }
+    }
+
+    @Override
     public void sendMessage(String message) {
         this.connection.write(message);
     }
 
-    public void closeConnection() throws IOException {
+    @Override
+    public void closeConnection() {
         connection.close();
-        Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, "client: " + name + " disconnected from server");
-        System.out.println("connection closed");
+        Logger.getLogger(ChatServer.class.getName()).log(Level.INFO, (name + " disconnected from server"));
     }
 
 }

@@ -1,6 +1,7 @@
 package chatserver;
 
-import java.io.IOException;
+import serverinterfaces.IHandler;
+import serverinterfaces.IClient;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
@@ -13,34 +14,20 @@ import java.util.logging.Logger;
 public class MessageHandler implements Runnable, IHandler {
 
     private final ArrayBlockingQueue<Message> messages;
-    private static HashMap<String, ClientHandler> users;
-    boolean running = true;
+    private HashMap<String, ClientHandler> users;
+    private boolean running = true;
 
     public MessageHandler(ArrayBlockingQueue<Message> messages, HashMap<String, ClientHandler> users) {
         this.messages = messages;
         this.users = users;
-
     }
 
-    @Override
-    public boolean registrerClients(String name, ClientHandler handler) {
-        users.put(name, handler);
-        return users.containsKey(name);
-    }
-
-    @Override
-    public boolean unregistrerClients(String name) {
-        users.remove(name);
-        return !users.containsKey(name);
-    }
-
-    @Override
     public void notifyReciever(String message, ClientHandler handler) {
         handler.sendMessage(message);
     }
 
     @Override
-    public void notifyClients(String message) {
+    public void notifyUsers(String message) {
         users.entrySet().stream().forEach((entry) -> {
             entry.getValue().sendMessage(message);
         });
@@ -51,18 +38,19 @@ public class MessageHandler implements Runnable, IHandler {
         messages.put(message);
     }
 
-    public String getOnlineClientNames() {
+    @Override
+    public void stopMessagePool() {
+        
+    }
+
+    @Override
+    public String getUsers(IClient c) {
         StringBuilder b = new StringBuilder();
         users.entrySet().stream().forEach((entry) -> {
             b.append(entry.getKey());
             b.append(",");
         });
         return b.substring(0, b.length() - 1);
-    }
-
-    public void stop() {
-        this.running = false;
-        Thread.currentThread().interrupt();
     }
 
     @Override
@@ -112,19 +100,41 @@ public class MessageHandler implements Runnable, IHandler {
                         }
                     }
                 }
-            } catch (InterruptedException | IOException e) {
+            } catch (InterruptedException e) {
                 Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, e);
                 return;
             }
         }
     }
 
-    public static String getUserSize() {
-        StringBuilder b = new StringBuilder();
-        users.entrySet().stream().forEach((entry) -> {
-            b.append(entry.getKey()); 
-            b.append(",");
-        });
-        return b.toString();
+    @Override
+    public void notifyUsers(String message) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    class ProtocolCheck {
+
+        String message;
+
+        public ProtocolCheck(String message) {
+            this.message = message;
+        }
+
+        public String getConnect() {
+            StringBuilder sb = new StringBuilder();
+            String tmp;
+            if (message.startsWith(Protocol.CONNECT)) {
+                tmp = message.replace(Protocol.CONNECT, "");
+                if (tmp.trim().equals("")) {
+                    message = "@";
+                } else {
+                    sb.append(Protocol.CONNECT);
+                }
+            }
+
+            return null;
+        }
+
+    }
+
 }

@@ -6,6 +6,7 @@
 
 package chatserver;
 
+import serverinterfaces.IConnection;
 import java.io.IOException;
 import utility.CloseSuccesException;
 

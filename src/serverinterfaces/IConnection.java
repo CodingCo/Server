@@ -1,4 +1,4 @@
-package chatserver;
+package serverinterfaces;
 
 import java.io.IOException;
 import utility.CloseSuccesException;

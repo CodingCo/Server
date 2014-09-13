@@ -1,6 +1,5 @@
 package webserver;
 
-import chatserver.MessageHandler;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -26,27 +25,27 @@ import utility.Utility;
 public class WebServer {
 
     private HttpServer server;
-    int port = 8030;
-    String ip = "127.0.0.1";
-    Properties property = Utility.initProperties("serverproperties.txt");
+    private int port;
+    private String ip;
+    private final Properties property = Utility.initProperties("serverproperties.txt");
+
     public void startServer() {
         ip = property.getProperty("ipaddress", "100.85.90.7");
-        port = Integer.parseInt(property.getProperty("webport","8028"));
+        port = Integer.parseInt(property.getProperty("webport", "8028"));
         try {
             server = HttpServer.create(new InetSocketAddress(ip, port), 0);
             server.createContext("/", new PageHandler());
             server.createContext("/log", new LogHandler());
-            server.createContext("/users", new UserHandler());
-            server.setExecutor(null); // Use the default executor
+            server.setExecutor(null);
             server.start();
-            System.out.println("Server started, listening on port: " + port);
         } catch (IOException ex) {
-            Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, ex.toString());
         }
+        System.out.println("Server started, listening on port: " + port);
     }
 
     public void closeHttpServer() {
-        this.server.stop(5);
+        server.stop(5);
         System.out.println("webserver closed");
     }
 
@@ -58,7 +57,6 @@ public class WebServer {
         @Override
 
         public void handle(HttpExchange he) throws IOException {
-
             String fileName = he.getRequestURI().getPath().substring(1);
             File file;
 
@@ -123,7 +121,8 @@ public class WebServer {
                 hbr.append(input);
             }
 
-            String onlineUsers = MessageHandler.getUserSize();
+            String onlineUsers = "";//MessageHandler.getUserSize();
+
             if (onlineUsers.equals("")) {
                 hbr.append("<li class=\"list-group-item list-group-item-danger \">");
                 hbr.append("no users online");
@@ -134,7 +133,6 @@ public class WebServer {
                     hbr.append(name);
                     hbr.append("</li>");
                 }
-
             }
             reader = new BufferedReader(new FileReader(third));
             while ((input = reader.readLine()) != null) {
@@ -148,67 +146,10 @@ public class WebServer {
             try (PrintWriter pw = new PrintWriter(he.getResponseBody())) {
                 pw.print(response);
             }
-
             in.close();
             br.close();
+            
 
-        }
-    }
-
-    static class UserHandler implements HttpHandler {
-
-        String contentType = "";
-        String[] names;
-        StringBuilder sb;
-
-        @Override
-
-        public void handle(HttpExchange he) throws IOException {
-
-            sb = new StringBuilder();
-
-            /*if (!MessageHandler.getUsernames().isEmpty()) {
-             Set<String> userNames = MessageHandler.getUsernames();
-             names = (String[]) userNames.toArray();
-             }*/
-            sb.append("<!DOCTYPE html>\n");
-            sb.append("<html>\n");
-            sb.append("<head>\n");
-            sb.append("<title>Online Users</title>\n");
-            sb.append("<meta charset='UTF-8'>\n");
-            sb.append("</head>\n");
-            sb.append("<body>\n");
-            /*
-             sb.append("<table border = 1>\n");
-             sb.append("<th colspan = 10>UserNames</th>");
-
-             for (int i = 0; i < names.length; i++) {
-             if (i == 0 || i % 10 == 0) {
-             sb.append("<tr>");
-             }
-
-             sb.append("<td>");
-             sb.append(names[i]);
-             sb.append("</td>");
-
-             if (i == 0 || i % 10 == 0) {
-             sb.append("</tr>");
-             }
-             }
-             */
-            sb.append("<p>");
-            sb.append("Users Online: ");
-            sb.append(MessageHandler.getUserSize());
-            sb.append("</p>");
-            sb.append("</body>\n");
-            sb.append("</html>\n");
-            String response = sb.toString();
-            Headers h = he.getResponseHeaders();
-            h.add("Content-Type", "text/html");
-            he.sendResponseHeaders(200, response.length());
-            try (PrintWriter pw = new PrintWriter(he.getResponseBody())) {
-                pw.print(response);
-            }
         }
     }
 

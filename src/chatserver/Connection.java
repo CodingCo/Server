@@ -1,5 +1,6 @@
 package chatserver;
 
+import serverinterfaces.IConnection;
 import utility.CloseSuccesException;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -38,7 +39,7 @@ public class Connection implements IConnection {
             input.close();
             output.close();
         } catch (IOException e) {
-
+            throw new CloseSuccesException("Connection terminated");
         }
     }
 
