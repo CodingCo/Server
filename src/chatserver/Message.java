@@ -16,12 +16,16 @@ public class Message {
         this.message = message;
     }
 
+    public static Message generateMessage(IClient c, String m) {
+        return new Message(c, m);
+    }
+
     public IClient getIClient() {
         return clientHandler;
     }
 
-    public static Message generateMessage(IClient c, String m) {
-        return new Message(c, m);
+    public String getMessage() {
+        return message;
     }
 
 }

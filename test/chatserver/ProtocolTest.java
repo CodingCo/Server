@@ -9,60 +9,100 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author simon
+ * @author Grønborg
  */
 public class ProtocolTest {
-    
+
     public ProtocolTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
     public void setUp() {
-	
     }
-    
+
     @After
     public void tearDown() {
     }
 
-    /**
-     * Test of close method, of class Protocol.
-     */
-    @Test
-    public void testClose() {
-        System.out.println("close");
-        assertEquals(Protocol.CLOSE, "CLOSE#");
-    }
-
-    /**
-     * Test of connect method, of class Protocol.
-     */
     @Test
     public void testConnect() {
-        System.out.println("connect");
-        assertEquals(Protocol.CONNECT, "CONNECT#");
+        System.out.println("getConnect test");
+        String message = "CONNECT#simon";
+        String expected = "simon";
+        String actual = Protocol.CheckMessage.getConnect(message);
+        assertEquals(expected, actual);
     }
 
-    /**
-     * Test of send method, of class Protocol.
-     */
     @Test
-    public void testSend() {
-        System.out.println("send");
-	
-	ConnectionMock cm;
-	MessageHandlerMock mhm;
-        Message m = new Message(new ClientHandler(cm = new ConnectionMock(),mhm = new MessageHandlerMock()), "SEND#Per#Hello", "Person");
-	String[] testArr = Protocol.send(m);
-	assertEquals(testArr[0], "MESSAGE#Person#Hello");
+    public void testConnect1() {
+        System.out.println("getConnect test");
+        String message = "CONNECT# olsen";
+        String expected = "olsen";
+        String actual = Protocol.CheckMessage.getConnect(message);
+        assertEquals(expected, actual);
     }
+
+    @Test
+    public void testConnect2() {
+        System.out.println("getConnect test");
+        String message = "CONNECT#CONNECT";
+        String expected = "CONNECT";
+        String actual = Protocol.CheckMessage.getConnect(message);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testConnectFail() {
+        System.out.println("getConnect test");
+        String message = "CONNECT#CONNECT#";
+        String actual = Protocol.CheckMessage.getConnect(message);
+        assertNull(actual);
+    }
+
+    @Test
+    public void testConnectFail1() {
+        System.out.println("getConnect test");
+        String message = "CONNECT#   ";
+        String actual = Protocol.CheckMessage.getConnect(message);
+        assertNull(actual);
+    }
+
+    @Test
+    public void testConnectFail2() {
+        System.out.println("getConnect test");
+        String message = "CONNECT# CONNECT#";
+        String actual = Protocol.CheckMessage.getConnect(message);
+        assertNull(actual);
+    }
+
+    
+    @Test
+    public void testCommand() {
+        System.out.println("command test");
+        String invalid = "";
+        String connect = Protocol.CONNECT;
+        String send = Protocol.SEND;
+        String close = Protocol.CLOSE;
+        int one = Protocol.CheckMessage.findCommand(invalid);
+        int two = Protocol.CheckMessage.findCommand(connect);
+        int three = Protocol.CheckMessage.findCommand(send);
+        int four = Protocol.CheckMessage.findCommand(close);
+        assertEquals(6, (one+two+three+four));
+    }
+    
+    
+    
+    
+    
+    
+    
     
 }

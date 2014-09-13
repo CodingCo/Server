@@ -3,7 +3,10 @@ package chatserver;
 import serverinterfaces.IHandler;
 import serverinterfaces.IClient;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -11,17 +14,27 @@ import java.util.concurrent.ArrayBlockingQueue;
  */
 public class MessageHandler implements Runnable, IHandler {
 
-    private ArrayBlockingQueue<Message> messages;
-    private HashMap<String, ClientHandler> users;
+    private final ArrayBlockingQueue<Message> messages;
+    private final HashMap<String, IClient> users;
     private boolean running = true;
 
-    public MessageHandler(ArrayBlockingQueue<Message> messages, HashMap<String, ClientHandler> users) {
+    public MessageHandler(ArrayBlockingQueue<Message> messages, HashMap<String, IClient> users) {
         this.messages = messages;
         this.users = users;
     }
 
-    public void notifyReciever(String message, ClientHandler handler) {
-        handler.sendMessage(message);
+    public boolean registrerClients(String name, IClient client) {
+        users.put(name, client);
+        return users.containsKey(name);
+    }
+
+    public boolean unregistrerClients(String name) {
+        users.remove(name);
+        return users.containsKey(name);
+    }
+
+    public void notifyReciever(String message, IClient client) {
+        client.sendMessage(message);
     }
 
     @Override
@@ -54,22 +67,59 @@ public class MessageHandler implements Runnable, IHandler {
 
     @Override
     public void run() {
-        while (running) {
-            
+        try {
+            while (running) {
+                Message m = messages.take();
+                String message = m.getMessage();
+                int command = Protocol.CheckMessage.findCommand(message);
+                switch (command) {
+                    case 1:
+                        connect(m);
+                        break;
+                    case 2:
+                        send(m);
+                        break;
+                    case 3:
+                        close(m);
+                        break;
+                    default:
+                        Logger.getLogger(ClientHandler.class.getName()).log(Level.INFO, ("invalid message: " + message));
+                }
+            }
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ClientHandler.class.getName()).log(Level.INFO, ex.toString());
         }
     }
 
-    static class CheckMessage {
-
-        public static String getConnect(String s) {
-            if (s.startsWith(Protocol.CONNECT)) {
-                    if (!s.replace(Protocol.CONNECT, "").trim().equals("")) {
-                    return s;
-                }
-            }
-            return null;
+    public void connect(Message m) {
+        String tmp = Protocol.CheckMessage.getConnect(m.getMessage());
+        if (tmp != null) {
+            registrerClients(tmp, m.getIClient());
+            notifyUsers(Protocol.ONLINE);
         }
 
+    }
+
+    public void send(Message m) {
+        String[] tmp = Protocol.CheckMessage.getSend(m.getMessage());
+        if (tmp != null) {
+            if (tmp[0].equals("*")) {
+                notifyUsers(tmp[1]);
+            } else {
+                for (String names : tmp[0].split(",")) {
+                    notifyReciever(tmp[1], users.get(names));
+                }
+            }
+        }
+    }
+
+    public void close(Message m) {
+        for (Map.Entry<String, IClient> entry : users.entrySet()) {
+            if (entry.getValue().equals(m.getIClient())) {
+                unregistrerClients(entry.getKey());
+                notifyUsers(Protocol.CLOSE);
+            }
+        }
     }
 
 }
