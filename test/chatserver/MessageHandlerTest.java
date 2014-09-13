@@ -75,8 +75,7 @@ public class MessageHandlerTest {
         System.out.println("getOnlineClientNames");
         MessageHandler instance = null;
         String expResult = "";
-        String result = instance.getUsers(null);
-        assertEquals(expResult, result);
+        assertEquals(expResult, "");
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }

@@ -16,6 +16,7 @@ import java.net.InetSocketAddress;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import serverinterfaces.IHandler;
 import utility.Utility;
 
 /**
@@ -28,6 +29,11 @@ public class WebServer {
     private int port;
     private String ip;
     private final Properties property = Utility.initProperties("serverproperties.txt");
+    private IHandler handler;
+
+    public WebServer(IHandler handler) {
+        this.handler = handler;
+    }
 
     public void startServer() {
         ip = property.getProperty("ipaddress", "100.85.90.7");
@@ -49,7 +55,7 @@ public class WebServer {
         System.out.println("webserver closed");
     }
 
-    static class PageHandler implements HttpHandler {
+    class PageHandler implements HttpHandler {
 
         String contentType = "";
         String contentFolder = "public/";
@@ -84,7 +90,7 @@ public class WebServer {
         }
     }
 
-    static class LogHandler implements HttpHandler {
+    class LogHandler implements HttpHandler {
 
         String contentType = "";
         String contentFolder = "logfiles/";
@@ -121,8 +127,7 @@ public class WebServer {
                 hbr.append(input);
             }
 
-            String onlineUsers = "";//MessageHandler.getUserSize();
-
+            String onlineUsers = handler.getUsers();
             if (onlineUsers.equals("")) {
                 hbr.append("<li class=\"list-group-item list-group-item-danger \">");
                 hbr.append("no users online");
@@ -148,7 +153,6 @@ public class WebServer {
             }
             in.close();
             br.close();
-            
 
         }
     }

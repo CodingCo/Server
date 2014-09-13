@@ -37,15 +37,15 @@ public interface Protocol {
             return null;
         }
 
-        public static String[] getSend(String s) {
+        public static String getSend(String s) {
             if (s.startsWith(SEND)) {
                 String tmp = s.replace(SEND, "");
                 if (!tmp.replaceAll("#", "").trim().equals("")) {
                     String[] tokens = tmp.split("#", 2);
                     if (tokens[0].equals("*")) {
-                        
+
                     }
-                    
+
                 }
 
             }

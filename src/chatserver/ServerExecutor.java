@@ -20,7 +20,7 @@ public class ServerExecutor {
     public static void main(String[] args) {
         ArrayBlockingQueue messageQue = new ArrayBlockingQueue(100);
         MessageHandler msgHandler = new MessageHandler(messageQue, new HashMap());
-        webServer = new WebServer();
+        webServer = new WebServer(msgHandler);
         webServer.startServer();
         server = new ChatServer(msgHandler);
         server.startServer();

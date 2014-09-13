@@ -56,13 +56,16 @@ public class MessageHandler implements Runnable, IHandler {
     }
 
     @Override
-    public synchronized String getUsers(IClient c) {
-        StringBuilder b = new StringBuilder();
-        users.entrySet().stream().forEach((entry) -> {
-            b.append(entry.getKey());
-            b.append(",");
-        });
-        return b.substring(0, b.length() - 1);
+    public synchronized String getUsers() {
+        if (!users.isEmpty()) {
+            StringBuilder b = new StringBuilder();
+            users.entrySet().stream().forEach((entry) -> {
+                b.append(entry.getKey());
+                b.append(",");
+            });
+            return b.substring(0, b.length() - 1);
+        }
+        return "";
     }
 
     @Override
@@ -95,29 +98,33 @@ public class MessageHandler implements Runnable, IHandler {
         String tmp = Protocol.CheckMessage.getConnect(m.getMessage());
         if (tmp != null) {
             registrerClients(tmp, m.getIClient());
-            notifyUsers(Protocol.ONLINE);
+            notifyUsers(Protocol.ONLINE + getUsers());
         }
 
     }
 
     public void send(Message m) {
-        String[] tmp = Protocol.CheckMessage.getSend(m.getMessage());
+        String tmp = Protocol.CheckMessage.getSend(m.getMessage());
         if (tmp != null) {
-            if (tmp[0].equals("*")) {
-                notifyUsers(tmp[1]);
+            if (tmp.startsWith("*")) {
+                notifyUsers(tmp.replaceFirst("*", ""));
             } else {
-                for (String names : tmp[0].split(",")) {
-                    notifyReciever(tmp[1], users.get(names));
+                String[] value = tmp.split(tmp, 1);
+                for (String names : tmp.split(",")) {
+                    //  notifyReciever(tmp[1], users.get(names));
                 }
             }
         }
     }
 
+    
+    // brug name
     public void close(Message m) {
         for (Map.Entry<String, IClient> entry : users.entrySet()) {
             if (entry.getValue().equals(m.getIClient())) {
+                m.getIClient().sendMessage(Protocol.CLOSE);
                 unregistrerClients(entry.getKey());
-                notifyUsers(Protocol.CLOSE);
+                notifyUsers(Protocol.ONLINE + getUsers());
             }
         }
     }
