@@ -1,31 +1,27 @@
 package chatserver;
 
+import serverinterfaces.IClient;
+
 /**
  *
  * @author simon
  */
 public class Message {
 
-    private final ClientHandler clientHandler;
+    private final IClient clientHandler;
     private final String message;
-    private final String sender;
 
-    public Message(ClientHandler ch, String message, String sender) {
+    private Message(IClient ch, String message) {
         this.clientHandler = ch;
         this.message = message;
-        this.sender = sender;
     }
 
-    public ClientHandler getClientHandler() {
+    public IClient getIClient() {
         return clientHandler;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public String getSender() {
-        return sender;
+    public static Message generateMessage(IClient c, String m) {
+        return new Message(c, m);
     }
 
 }

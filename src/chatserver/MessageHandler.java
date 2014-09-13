@@ -4,8 +4,6 @@ import serverinterfaces.IHandler;
 import serverinterfaces.IClient;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -13,7 +11,7 @@ import java.util.logging.Logger;
  */
 public class MessageHandler implements Runnable, IHandler {
 
-    private final ArrayBlockingQueue<Message> messages;
+    private ArrayBlockingQueue<Message> messages;
     private HashMap<String, ClientHandler> users;
     private boolean running = true;
 
@@ -34,17 +32,18 @@ public class MessageHandler implements Runnable, IHandler {
     }
 
     @Override
-    public void addToMessagePool(Message message) throws InterruptedException {
+    public synchronized void addToMessagePool(Message message) throws InterruptedException {
         messages.put(message);
     }
 
     @Override
     public void stopMessagePool() {
-        
+        running = false;
+        messages.clear();
     }
 
     @Override
-    public String getUsers(IClient c) {
+    public synchronized String getUsers(IClient c) {
         StringBuilder b = new StringBuilder();
         users.entrySet().stream().forEach((entry) -> {
             b.append(entry.getKey());
@@ -56,82 +55,18 @@ public class MessageHandler implements Runnable, IHandler {
     @Override
     public void run() {
         while (running) {
-            try {
-                Message m = messages.take();
-                String input = m.getMessage();
-                System.out.println("message is: " + input);
-                if (input != null) {
-                    if (input.startsWith(Protocol.CONNECT)) {
-                        // registrer ClientHandler and client name
-                        String name = input.replace(Protocol.CONNECT, "").trim();
-                        if (!users.containsValue(m.getClientHandler())) {
-                            if (registrerClients(name, m.getClientHandler())) {
-                                notifyClients(Protocol.connect() + getOnlineClientNames());
-                                m.getClientHandler().setName(name);
-                                System.out.println("user: " + name + " is online");
-                            } else {
-                                notifyReciever(Protocol.close(), m.getClientHandler());
-                            }
-                        } else {
-                            m.getClientHandler().sendMessage("MESSAGE#server# you are already online");
-                        }
-                    }
-                    if (users.containsKey(m.getSender())) {
-                        if (input.startsWith(Protocol.SEND)) {
-                            String[] x = Protocol.send(m);
-                            if (x.length == 1) {
-                                notifyClients(x[0]);
-                            } else {
-                                for (String string : x[1].split(",")) {
-                                    if (users.containsKey(string)) {
-                                        notifyReciever(x[0], users.get(string));
-                                    }
-                                }
-                            }
-                        }
-                        if (input.startsWith(Protocol.CLOSE)) {
-
-                            m.getClientHandler().sendMessage(Protocol.close());
-                            unregistrerClients(m.getSender());
-                            m.getClientHandler().closeConnection();
-                            if (!users.isEmpty()) {
-                                notifyClients(Protocol.ONLINE + getOnlineClientNames());
-                            }
-                        }
-                    }
-                }
-            } catch (InterruptedException e) {
-                Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, e);
-                return;
-            }
+            
         }
     }
 
-    @Override
-    public void notifyUsers(String message) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    static class CheckMessage {
 
-    class ProtocolCheck {
-
-        String message;
-
-        public ProtocolCheck(String message) {
-            this.message = message;
-        }
-
-        public String getConnect() {
-            StringBuilder sb = new StringBuilder();
-            String tmp;
-            if (message.startsWith(Protocol.CONNECT)) {
-                tmp = message.replace(Protocol.CONNECT, "");
-                if (tmp.trim().equals("")) {
-                    message = "@";
-                } else {
-                    sb.append(Protocol.CONNECT);
+        public static String getConnect(String s) {
+            if (s.startsWith(Protocol.CONNECT)) {
+                    if (!s.replace(Protocol.CONNECT, "").trim().equals("")) {
+                    return s;
                 }
             }
-
             return null;
         }
 

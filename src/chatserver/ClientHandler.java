@@ -15,15 +15,10 @@ public class ClientHandler implements Runnable, IClient {
 
     private final IConnection connection;
     private final IHandler messageHandler;
-    private String name;
 
     public ClientHandler(IConnection connection, IHandler messageHandler) {
         this.connection = connection;
         this.messageHandler = messageHandler;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     @Override
@@ -33,8 +28,9 @@ public class ClientHandler implements Runnable, IClient {
             String message;
 
             while ((message = connection.read()) != null) {
-                messageHandler.addToMessagePool(new Message(this, message, name));
+                messageHandler.addToMessagePool(Message.generateMessage(this, message));
             }
+
         } catch (IOException | InterruptedException ex) {
             Logger.getLogger(ClientHandler.class.getName()).log(Level.INFO, ex.toString());
         } finally {
@@ -44,9 +40,9 @@ public class ClientHandler implements Runnable, IClient {
 
     public void secureExit() {
         try {
-            messageHandler.addToMessagePool(new Message(this, "CLOSE#", name));
-        } catch (InterruptedException e) {
-            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, e.toString());
+            messageHandler.addToMessagePool(Message.generateMessage(this, Protocol.CLOSE));
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ClientHandler.class.getName()).log(Level.SEVERE, ex.toString());
         }
     }
 
@@ -58,7 +54,8 @@ public class ClientHandler implements Runnable, IClient {
     @Override
     public void closeConnection() {
         connection.close();
-        Logger.getLogger(ChatServer.class.getName()).log(Level.INFO, (name + " disconnected from server"));
+        Logger.getLogger(ChatServer.class.getName()).log(Level.INFO, ("disconnected from server"));
+
     }
 
 }

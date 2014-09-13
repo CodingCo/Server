@@ -43,30 +43,27 @@ public class ServerExecutor {
     }
 
     private static void switchCommands(String command) {
-        try {
-            switch (command) {
-                case "stop server":
-                    server.stopServer();
-                    break;
-                case "start server":
-                    server.startServer();
-                    break;
-                case "status":
-                    System.out.println("running");
-                    break;
-                case "stop web":
-                    webServer.closeHttpServer();
-                    break;
-                case "start web":
-                    webServer.startServer();
-                    break;
-                default:
-                    if (!command.equals("killall")) {
-                        System.out.println("unknow command");
-                    }
-            }
-        } catch (IOException e) {
 
+        switch (command) {
+            case "stop server":
+                server.stopServer();
+                break;
+            case "start server":
+                server.startServer();
+                break;
+            case "status":
+                System.out.println("running");
+                break;
+            case "stop web":
+                webServer.closeHttpServer();
+                break;
+            case "start web":
+                webServer.startServer();
+                break;
+            default:
+                if (!command.equals("killall")) {
+                    System.out.println("unknow command");
+                }
         }
     }
 }

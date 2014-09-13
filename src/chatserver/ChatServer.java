@@ -36,7 +36,6 @@ public class ChatServer implements Runnable {
             openConnection();
             while (running) {
                 Socket socket;
-
                 System.out.println("waiting for connection");
                 socket = serverSocket.accept();
                 ClientHandler h = new ClientHandler(new Connection(socket), messageHandler);
@@ -71,7 +70,7 @@ public class ChatServer implements Runnable {
             messageHandler.notifyUsers(Protocol.CLOSE);
             serverSocket.close();
         } catch (IOException ex) {
-             Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, "Could not disconnect");
+             Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, (ex.toString() + " Could not disconnect"));
         }
 
     }

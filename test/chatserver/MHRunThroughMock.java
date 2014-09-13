@@ -16,7 +16,7 @@ public class MHRunThroughMock extends MessageHandler {
         super(messages, users);
     }
 
-    @Override
+
     public void notifyClients(String message) {
         client = true;
     }
