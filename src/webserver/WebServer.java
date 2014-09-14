@@ -128,6 +128,7 @@ public class WebServer {
             }
 
             String onlineUsers = handler.getUsers();
+            
             if (onlineUsers.equals("")) {
                 hbr.append("<li class=\"list-group-item list-group-item-danger \">");
                 hbr.append("no users online");

@@ -32,56 +32,6 @@ public class ProtocolTest {
     public void tearDown() {
     }
 
-    @Test
-    public void testConnect() {
-        System.out.println("getConnect test");
-        String message = "CONNECT#simon";
-        String expected = "simon";
-        String actual = Protocol.CheckMessage.getConnect(message);
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    public void testConnect1() {
-        System.out.println("getConnect test");
-        String message = "CONNECT# olsen";
-        String expected = "olsen";
-        String actual = Protocol.CheckMessage.getConnect(message);
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    public void testConnect2() {
-        System.out.println("getConnect test");
-        String message = "CONNECT#CONNECT";
-        String expected = "CONNECT";
-        String actual = Protocol.CheckMessage.getConnect(message);
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    public void testConnectFail() {
-        System.out.println("getConnect test");
-        String message = "CONNECT#CONNECT#";
-        String actual = Protocol.CheckMessage.getConnect(message);
-        assertNull(actual);
-    }
-
-    @Test
-    public void testConnectFail1() {
-        System.out.println("getConnect test");
-        String message = "CONNECT#   ";
-        String actual = Protocol.CheckMessage.getConnect(message);
-        assertNull(actual);
-    }
-
-    @Test
-    public void testConnectFail2() {
-        System.out.println("getConnect test");
-        String message = "CONNECT# CONNECT#";
-        String actual = Protocol.CheckMessage.getConnect(message);
-        assertNull(actual);
-    }
 
     
     @Test
@@ -91,16 +41,23 @@ public class ProtocolTest {
         String connect = Protocol.CONNECT;
         String send = Protocol.SEND;
         String close = Protocol.CLOSE;
-        int one = Protocol.CheckMessage.findCommand(invalid);
-        int two = Protocol.CheckMessage.findCommand(connect);
-        int three = Protocol.CheckMessage.findCommand(send);
-        int four = Protocol.CheckMessage.findCommand(close);
+        int one = Protocol.CheckMessage.registrerProtocolType(invalid);
+        int two = Protocol.CheckMessage.registrerProtocolType(connect);
+        int three = Protocol.CheckMessage.registrerProtocolType(send);
+        int four = Protocol.CheckMessage.registrerProtocolType(close);
         assertEquals(6, (one+two+three+four));
     }
     
     
     
+    @Test
+    public void send(){
+        System.out.println("test messages");
+        Message m = Message.generateMessage(null, "SEND#lars#hej");
+        MessageHandler h = new MessageHandler(null, null);
+        h.send(m);
     
+    }
     
     
     

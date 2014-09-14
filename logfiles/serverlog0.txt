@@ -1,0 +1,6 @@
+sep. 14, 2014 5:26:36 PM chatserver.ClientHandler run
+INFO: java.net.SocketException: Connection reset
+sep. 14, 2014 5:26:37 PM chatserver.ClientHandler run
+INFO: java.net.SocketException: Connection reset
+sep. 14, 2014 5:26:43 PM chatserver.ChatServer run
+INFO: disconnected

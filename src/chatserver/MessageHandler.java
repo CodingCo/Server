@@ -74,7 +74,7 @@ public class MessageHandler implements Runnable, IHandler {
             while (running) {
                 Message m = messages.take();
                 String message = m.getMessage();
-                int command = Protocol.CheckMessage.findCommand(message);
+                int command = Protocol.CheckMessage.registrerProtocolType(message);
                 switch (command) {
                     case 1:
                         connect(m);
@@ -95,38 +95,44 @@ public class MessageHandler implements Runnable, IHandler {
     }
 
     public void connect(Message m) {
-        String tmp = Protocol.CheckMessage.getConnect(m.getMessage());
-        if (tmp != null) {
-            registrerClients(tmp, m.getIClient());
-            notifyUsers(Protocol.ONLINE + getUsers());
-        }
-
-    }
-
-    public void send(Message m) {
-        String tmp = Protocol.CheckMessage.getSend(m.getMessage());
-        if (tmp != null) {
-            if (tmp.startsWith("*")) {
-                notifyUsers(tmp.replaceFirst("*", ""));
-            } else {
-                String[] value = tmp.split(tmp, 1);
-                for (String names : tmp.split(",")) {
-                    //  notifyReciever(tmp[1], users.get(names));
+        String message = m.getMessage();
+        if (message.startsWith(Protocol.CONNECT)) {
+            message = message.replace(Protocol.CONNECT, "");
+            if (!message.equals("")) {
+                if (!users.containsValue(m.getIClient())) {
+                    m.getIClient().setName(message);
+                    registrerClients(message, m.getIClient());
+                    notifyUsers(Protocol.ONLINE + getUsers());
+                } else {
+                    notifyReciever(Protocol.SERVER_ONLINE_RESPONSE, m.getIClient());
                 }
             }
         }
     }
 
-    
-    // brug name
-    public void close(Message m) {
-        for (Map.Entry<String, IClient> entry : users.entrySet()) {
-            if (entry.getValue().equals(m.getIClient())) {
-                m.getIClient().sendMessage(Protocol.CLOSE);
-                unregistrerClients(entry.getKey());
-                notifyUsers(Protocol.ONLINE + getUsers());
+    public void send(Message m) {
+        String message = m.getMessage();
+        if (message.startsWith(Protocol.SEND)) {
+            message = message.replace(Protocol.SEND, "");
+            String[] userAndMessage = message.split("#", 2);
+            if (userAndMessage[0].equals("*")) {
+                notifyUsers(Protocol.MESSAGE + m.getIClient().getName() + "#" + userAndMessage[1]);
+            } else {
+                for (String user : userAndMessage[0].split(",")) {
+                    if (users.containsKey(user)) {
+                        notifyReciever(Protocol.MESSAGE + m.getIClient().getName() + "#" + userAndMessage[1], users.get(user));
+                    } else {
+                        m.getIClient().sendMessage(Protocol.SERVER_NO_SUCH_USER + user);
+                    }
+                }
             }
         }
+    }
+
+    public void close(Message m) {
+        notifyReciever(Protocol.CLOSE, m.getIClient());
+        unregistrerClients(m.getIClient().getName());
+        notifyUsers(Protocol.ONLINE + getUsers());
     }
 
 }

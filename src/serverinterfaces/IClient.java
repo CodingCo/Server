@@ -10,4 +10,8 @@ public interface IClient {
 
     public void sendMessage(String message);
 
+    public String getName();
+
+    public void setName(String name);
+
 }
