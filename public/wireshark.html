@@ -12,25 +12,22 @@
 <div class="nav-wrap">
     <div class="container">
         <ul class="nav nav-pills pull-left">
-            <li><a href="index.html">brav3h3art</a></li>
+            <li><a href="#">Frontpage</a></li>
             <li><a href="documentation.html">Documentation</a></li>
             <li class="active"><a href="wireshark.html">wireshark</a></li>
             <li><a href="/log">Admin</a></li>
         </ul>
         <ul class="nav nav-pills pull-right">
             <li><a href="https://github.com/CodingCo/Client">View on Github</a></li>
-            <li><a href="ChatBraveheart.zip">Download Brav3h3art</a></li>
+            <li><a href="ChatBraveheart.zip">Download G5Chat</a></li>
         </ul>
     </div>
 </div>
 
 <div class="container">
-    <h3 id="doc">Wireshark</h3>
+    <h3 id="doc">Wireshark captures</h3>
 
     <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">Wireshark capture</h3>
-        </div>
         <div class="panel-body">
             <div class="well"><h4>How it works</h4></div>
             <p>We used Wireshark to sniff all the TCP packets, which was send and received on our client.
@@ -48,29 +45,36 @@
 
             <img src="images/msg.png" alt="lol" class="img-rounded img-responsive"/>
 
-            <p></p>
+        </div>
+    </div>
+
+
+    <div class="panel panel-default">
+
+        <div class="panel-body">
+            <div class="well"><h4>Package content</h4></div>
+            <img src="images/flow.png" alt="lol" class="img-rounded img-responsive"/>
 
             <p>The image above shows the above mentioned test. The text left of the image describes the content of the
                 packets. The image below shows the content as sniffed by wireshark.</p>
+
         </div>
+
+    </div>
+
+    <div class="panel panel-default">
         <div class="panel-body">
             <div class="well"><h4>Package content</h4></div>
 
-            <img src="images/flow.png" alt="lol" class="img-rounded img-responsive"/>
             <img src="images/sc.png" alt="lol" class="img-rounded img-responsive"/>
-
-            <p></p>
-
-            <p></p>
 
             <p>
                 The image above depicts the flow diagram. It is easy to spot the three way handshake, psh, ack and
                 corresponding acks and the final FIN ACK teardown.
             </p>
-
-
         </div>
     </div>
+
 </div>
 
 <div class="container">
